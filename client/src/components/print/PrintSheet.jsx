@@ -1,0 +1,302 @@
+import { useRef, useEffect } from 'react'
+import { useLoadSheet } from '../../context/LoadSheetContext'
+import { AIRCRAFT } from '../../data/aircraft'
+import { fmtMoment, calcWB } from '../../utils/wbCalc'
+import { calcFuel } from '../../utils/fuelCalc'
+import { drawEnvelope } from '../../utils/drawEnvelope'
+
+export default function PrintSheet() {
+  const { state } = useLoadSheet()
+  const ac = AIRCRAFT[state.currentAC]
+  const wb = state.wbResults
+  const canvasToRef = useRef(null)
+  const canvasLdgRef = useRef(null)
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (canvasToRef.current) {
+          drawEnvelope(canvasToRef.current, {
+            gw: wb.totalW, cg: wb.cg,
+            limitsNormal: ac?.limits_normal, limitsUtility: ac?.limits_utility,
+            showPoint: wb.totalW > (ac?.empty_weight || 0),
+          })
+        }
+        if (canvasLdgRef.current) {
+          drawEnvelope(canvasLdgRef.current, {
+            gw: wb.ldgW || 0, cg: wb.ldgCG || 0,
+            limitsNormal: ac?.limits_normal, limitsUtility: ac?.limits_utility,
+            showPoint: (wb.ldgW || 0) > 0,
+          })
+        }
+      })
+    })
+  }, [wb, ac])
+
+  if (!ac) return null
+
+  const { totalW, totalM, cg } = calcWB(ac, state.wbInputs)
+  const tfob = parseFloat(state.wbInputs.fuel) || 0
+  const fuel = calcFuel({
+    flow: state.fuelData.flow, trip: state.fuelData.trip,
+    taxi: state.fuelData.taxi, alt1: state.fuelData.alt1,
+    alt2: state.fuelData.alt2, tfob,
+  })
+
+  const momentHeader = ac.moment_div1000 ? 'Momento (lb·in/1000)' : 'Momento (lb·in)'
+
+  return (
+    <div id="print-area" className="print-sheet text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto">
+      {/* 1. Header */}
+      <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-2 mb-3">
+        <div>
+          <div className="text-sm font-bold text-[#1a3a5c]">CAAA, S.A. de C.V.</div>
+          <div className="text-[9px] text-gray-500">Centro de Adiestramiento Aereo Academico</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xs font-bold text-[#1a3a5c] uppercase tracking-wider">Load Sheet</div>
+          <div className="text-[9px] text-gray-600">{ac.sheet || ac.model}</div>
+        </div>
+        <div className={`px-3 py-1 rounded text-[10px] font-bold ${wb.allOk ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+          {wb.allOk ? 'APTO' : 'REQUIERE REVISION'}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {/* LEFT COLUMN */}
+        <div className="space-y-3">
+          {/* 2. W&B Table */}
+          <table className="w-full border-collapse border border-gray-400 text-[9px]">
+            <thead>
+              <tr className="bg-[#1a3a5c] text-white">
+                <th className="text-left px-1.5 py-1 font-semibold">Estacion</th>
+                <th className="text-right px-1.5 py-1 font-semibold w-14">Peso (lb)</th>
+                <th className="text-right px-1.5 py-1 font-semibold w-14">Brazo (in)</th>
+                <th className="text-right px-1.5 py-1 font-semibold w-16">{momentHeader}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-gray-300">
+                <td className="px-1.5 py-0.5">Empty Weight</td>
+                <td className="px-1.5 py-0.5 text-right font-mono">{ac.empty_weight.toLocaleString()}</td>
+                <td className="px-1.5 py-0.5 text-right font-mono">{ac.empty_arm}</td>
+                <td className="px-1.5 py-0.5 text-right font-mono">{fmtMoment(ac.empty_weight * ac.empty_arm, ac)}</td>
+              </tr>
+              {ac.oil && (
+                <tr className="border-b border-gray-300">
+                  <td className="px-1.5 py-0.5">{ac.oil.label}</td>
+                  <td className="px-1.5 py-0.5 text-right font-mono">{ac.oil.weight}</td>
+                  <td className="px-1.5 py-0.5 text-right font-mono">{ac.oil.arm}</td>
+                  <td className="px-1.5 py-0.5 text-right font-mono">{fmtMoment(ac.oil.weight * ac.oil.arm, ac)}</td>
+                </tr>
+              )}
+              {ac.stations.map(s => {
+                const raw = state.wbInputs[s.id]
+                const val = parseFloat(raw) || 0
+                const w = s.is_fuel ? val * ac.fuel_lb_gal : val
+                return (
+                  <tr key={s.id} className="border-b border-gray-300">
+                    <td className="px-1.5 py-0.5">{s.label}</td>
+                    <td className="px-1.5 py-0.5 text-right font-mono">{w ? (s.is_fuel ? `${val} gal = ${w.toFixed(1)}` : w) : ''}</td>
+                    <td className="px-1.5 py-0.5 text-right font-mono">{s.arm}</td>
+                    <td className="px-1.5 py-0.5 text-right font-mono">{w ? fmtMoment(w * s.arm, ac) : ''}</td>
+                  </tr>
+                )
+              })}
+              <tr className="bg-[#e8f0f8] font-bold border-t-2 border-[#1a3a5c]">
+                <td className="px-1.5 py-1 text-[#1a3a5c]">TOTAL</td>
+                <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{totalW.toLocaleString()}</td>
+                <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{cg.toFixed(2)}</td>
+                <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{fmtMoment(totalM, ac)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* 3. Performance Limits */}
+          <div className="border border-gray-400 rounded p-2">
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Limites de Rendimiento</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[9px]">
+              <span className="text-gray-500">Max Takeoff Weight:</span><span className="font-mono">{ac.max_gross.toLocaleString()} lb</span>
+              <span className="text-gray-500">Max Landing Weight:</span><span className="font-mono">{ac.max_landing.toLocaleString()} lb</span>
+              {ac.max_useful_load && <><span className="text-gray-500">Max Useful Load:</span><span className="font-mono">{ac.max_useful_load.toLocaleString()} lb</span></>}
+              <span className="text-gray-500">Fuel Capacity:</span><span className="font-mono">{ac.fuel_cap_gal} gal ({ac.fuel_usable_gal} usable)</span>
+              <span className="text-gray-500">Fuel Burn:</span><span className="font-mono">{ac.fuel_burn_note}</span>
+            </div>
+          </div>
+
+          {/* 4. Identification */}
+          <div className="border border-gray-400 rounded p-2">
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Identificacion</div>
+            <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[9px]">
+              {[
+                ['DEP', state.identification.dep], ['DEST', state.identification.dest],
+                ['DATE', state.identification.date || state.flightData.date], ['REG', ac.reg],
+                ['TYPE', ac.model], ['PIC', state.identification.pic],
+                ['Student', state.identification.student || state.flightData.student],
+                ['SIGN', state.identification.sign],
+              ].map(([l, v]) => (
+                <div key={l}><span className="text-gray-500 text-[8px]">{l}: </span><span className="font-semibold">{v}</span></div>
+              ))}
+            </div>
+            <div className="grid grid-cols-4 gap-x-2 mt-1 text-[9px]">
+              <div><span className="text-gray-500 text-[8px]">TOM: </span><span className="font-mono font-semibold">{Math.round(totalW)} lb</span></div>
+              <div><span className="text-gray-500 text-[8px]">LM: </span><span className="font-mono font-semibold">{Math.round(wb.ldgW || 0)} lb</span></div>
+              <div><span className="text-gray-500 text-[8px]">TOG: </span><span className="font-mono font-semibold">{cg.toFixed(2)} in</span></div>
+              <div><span className="text-gray-500 text-[8px]">LCG: </span><span className="font-mono font-semibold">{(wb.ldgCG || 0).toFixed(2)} in</span></div>
+            </div>
+          </div>
+
+          {/* 6. Nav table compact */}
+          {state.navRows.some(r => r.waypoint || r.nm) && (
+            <div>
+              <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Plan de Navegacion</div>
+              <table className="w-full border-collapse border border-gray-400 text-[8px]">
+                <thead>
+                  <tr className="bg-[#1a3a5c] text-white">
+                    <th className="px-1 py-0.5">WPT</th><th className="px-1 py-0.5">ALT</th>
+                    <th className="px-1 py-0.5">TC</th><th className="px-1 py-0.5">MH</th>
+                    <th className="px-1 py-0.5">TAS</th><th className="px-1 py-0.5">GS</th>
+                    <th className="px-1 py-0.5">NM</th><th className="px-1 py-0.5">ACUM</th>
+                    <th className="px-1 py-0.5">ETA</th><th className="px-1 py-0.5">FUEL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {state.navRows.map((r, i) => {
+                    const acumVal = state.navRows.slice(0, i + 1).reduce((s, row) => s + (parseFloat(row.nm) || 0), 0)
+                    return (
+                      <tr key={i} className="border-b border-gray-300">
+                        <td className="px-1 py-0.5">{r.waypoint || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r.altfl || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r.tc || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r.mh || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r.tas || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r.gs || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r.nm || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{acumVal || ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r['eta-h'] && r['eta-m'] ? `${r['eta-h']}:${r['eta-m']}` : ''}</td>
+                        <td className="px-1 py-0.5 text-center">{r['fuel-req'] || ''}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="space-y-3">
+          {/* 5. Envelope charts */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="border border-gray-400 rounded p-1.5">
+              <div className="text-[8px] font-bold text-gray-500 uppercase mb-1">Envolvente — Despegue</div>
+              <canvas ref={canvasToRef} style={{ width: '100%', height: '160px' }} />
+            </div>
+            <div className="border border-gray-400 rounded p-1.5">
+              <div className="text-[8px] font-bold text-gray-500 uppercase mb-1">Envolvente — Aterrizaje</div>
+              <canvas ref={canvasLdgRef} style={{ width: '100%', height: '160px' }} />
+            </div>
+          </div>
+
+          {/* 10. Operations */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { key: 'dep', title: 'Salida' },
+              { key: 'dest', title: 'Destino' },
+              { key: 'alt', title: 'Alternado' },
+            ].map(sec => (
+              <div key={sec.key} className="border border-gray-400 rounded overflow-hidden">
+                <div className="bg-[#1a3a5c] text-white px-1.5 py-0.5 text-[8px] font-bold uppercase">{sec.title}</div>
+                <div className="p-1">
+                  {[['AP', 'ap'], ['RWY', 'rwy'], ['APPR', 'appr'], ['VIS', 'vis'], ['CEIL', 'ceil']].map(([l, f]) => (
+                    <div key={f} className="flex justify-between py-0.5 border-b border-dashed border-gray-200 last:border-0 text-[8px]">
+                      <span className="text-gray-500">{l}</span>
+                      <span className="font-semibold">{state.opsData[sec.key][f] || ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 7. Fuel table */}
+          <div>
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Combustible</div>
+            <table className="w-full border-collapse border border-gray-400 text-[8px]">
+              <thead>
+                <tr className="bg-[#1a3a5c] text-white">
+                  <th className="text-left px-1 py-0.5">Desc.</th>
+                  <th className="text-right px-1 py-0.5 w-12">US gal</th>
+                  <th className="text-right px-1 py-0.5 w-10">KG</th>
+                  <th className="text-right px-1 py-0.5 w-10">TIME</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['FLOW', state.fuelData.flow ? `${state.fuelData.flow} gal/h` : '', fuel.flowKgh ? `${fuel.flowKgh.toFixed(1)}` : '', ''],
+                  ['TAXI', state.fuelData.taxi || '', fuel.taxiKg ? fuel.taxiKg.toFixed(1) : '', fuel.taxiTime],
+                  ['TRIP', state.fuelData.trip || '', fuel.tripKg ? fuel.tripKg.toFixed(1) : '', fuel.tripTime],
+                  ['R/R 5%', fuel.rar ? fuel.rar.toFixed(2) : '', fuel.rarKg ? fuel.rarKg.toFixed(1) : '', fuel.rarTime],
+                  ['ALT 1', state.fuelData.alt1 || '', fuel.alt1Kg ? fuel.alt1Kg.toFixed(1) : '', fuel.alt1Time],
+                  ['ALT 2', state.fuelData.alt2 || '', fuel.alt2Kg ? fuel.alt2Kg.toFixed(1) : '', fuel.alt2Time],
+                  ['RESERVE', fuel.reserve ? fuel.reserve.toFixed(2) : '', fuel.reserveKg ? fuel.reserveKg.toFixed(1) : '', fuel.reserveTime],
+                  ['MIN REQ', fuel.minReq ? fuel.minReq.toFixed(2) : '', fuel.minReqKg ? fuel.minReqKg.toFixed(1) : '', ''],
+                  ['TFOB', tfob || '', fuel.tfobKg ? fuel.tfobKg.toFixed(1) : '', ''],
+                ].map(([label, gal, kg, time], i) => (
+                  <tr key={i} className={`border-b border-gray-300 ${label === 'MIN REQ' || label === 'TFOB' ? 'font-bold bg-[#e8f0f8]' : ''}`}>
+                    <td className="px-1 py-0.5">{label}</td>
+                    <td className="px-1 py-0.5 text-right font-mono">{gal}</td>
+                    <td className="px-1 py-0.5 text-right font-mono">{kg}</td>
+                    <td className="px-1 py-0.5 text-right font-mono">{time}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 8. Times */}
+          <div>
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Tiempos</div>
+            <div className="grid grid-cols-4 gap-1 text-[9px]">
+              {[['TOD', 'tod'], ['LD', 'ld'], ['ETD', 'etd'], ['ATD', 'atd'], ['ETA', 'eta'], ['ATA', 'ata'], ['EET', 'eet'], ['TOTAL', 'total']].map(([l, f]) => (
+                <div key={f} className="border border-gray-300 rounded px-1.5 py-0.5">
+                  <span className="text-gray-500 text-[8px]">{l}: </span>
+                  <span className="font-mono font-semibold">{state.timesData[f] || '—'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 9. ATIS */}
+          <div className="grid grid-cols-2 gap-2 text-[9px]">
+            <div className="border border-gray-300 rounded px-1.5 py-0.5">
+              <span className="text-gray-500 text-[8px]">DEP ATIS: </span><span className="font-semibold">{state.depAtis || '—'}</span>
+            </div>
+            <div className="border border-gray-300 rounded px-1.5 py-0.5">
+              <span className="text-gray-500 text-[8px]">ARR ATIS: </span><span className="font-semibold">{state.arrAtis || '—'}</span>
+            </div>
+          </div>
+
+          {/* 11. Notes */}
+          {state.notes && (
+            <div className="border border-gray-300 rounded p-1.5 text-[9px]">
+              <span className="text-gray-500 text-[8px] font-bold uppercase">Notas: </span>
+              <span>{state.notes}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 12. Signature footer */}
+      <div className="grid grid-cols-3 gap-6 mt-6 pt-3 border-t border-gray-400">
+        {['Firma del Alumno', 'Firma del Instructor', 'Capitan de Escuela (Flight Dispatch)'].map(label => (
+          <div key={label} className="text-center">
+            <div className="border-b border-black mb-1 h-8"></div>
+            <div className="text-[9px] text-gray-600 font-semibold">{label}</div>
+            <div className="text-[8px] text-gray-400 mt-0.5">Nombre: ________________________</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
