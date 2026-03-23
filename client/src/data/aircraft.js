@@ -1,6 +1,6 @@
 export const AIRCRAFT = {
   pa28r180: {
-    reg: 'YS-334-PE',
+    reg: 'YS-127-P',
     model: 'PA-28R-180',
     sheet: 'PA-28R-180 & PA-28',
     empty_weight: 1380,
@@ -33,7 +33,8 @@ export const AIRCRAFT = {
     ],
   },
   pa28_333: {
-    reg: 'YS-333-PE',
+    reg: 'YS-259',
+    disabled: true,
     model: 'PA-28-180',
     sheet: 'PA-28R-180 & PA-28',
     empty_weight: 1310,
@@ -66,7 +67,7 @@ export const AIRCRAFT = {
     ],
   },
   pa28_270: {
-    reg: 'YS-270-PE',
+    reg: 'YS-270-P',
     model: 'PA-28-180',
     sheet: 'PA-28R-180 & PA-28',
     empty_weight: 1310,
@@ -99,7 +100,7 @@ export const AIRCRAFT = {
     ],
   },
   c152: {
-    reg: 'YS-127-P',
+    reg: 'YS-333-PE',
     model: 'C-152 II',
     sheet: 'C-152 II & PA-38',
     empty_weight: 1118,
@@ -122,14 +123,14 @@ export const AIRCRAFT = {
       { id: 'fuel', label: 'Fuel (24.5 gal MAX)', arm: 42, max_gal: 24.5, is_fuel: true },
     ],
     limits_normal: [
-      { w: 450, fwd: 30, aft: 36.5 },
-      { w: 575, fwd: 30, aft: 36.5 },
-      { w: 750, fwd: 33, aft: 36.5 },
-      { w: 825, fwd: 33, aft: 37 },
+      { w: 992,  fwd: 30.0, aft: 36.5 },
+      { w: 1268, fwd: 30.0, aft: 36.5 },
+      { w: 1653, fwd: 33.0, aft: 36.5 },
+      { w: 1819, fwd: 33.0, aft: 37.0 },
     ],
   },
   pa38: {
-    reg: 'YS-259-P',
+    reg: 'YS-334-PE',
     model: 'PA-38 Tomahawk',
     sheet: 'C-152 II & PA-38',
     empty_weight: 1128,

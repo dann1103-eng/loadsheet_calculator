@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
   body {
     visibility: hidden;
     background: white !important;
@@ -9,11 +13,10 @@
   }
   #print-area {
     visibility: visible;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 10mm;
     background: white;
   }
   #print-area * {

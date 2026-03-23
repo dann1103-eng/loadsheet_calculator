@@ -25,7 +25,9 @@ export default function Step2WB() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Left: Table + Results */}
         <div>
-          <WBTable />
+          <div className="overflow-x-auto">
+            <WBTable />
+          </div>
           <ResultCards />
         </div>
 

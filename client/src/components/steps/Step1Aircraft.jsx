@@ -2,7 +2,7 @@ import { useLoadSheet } from '../../context/LoadSheetContext'
 import { AIRCRAFT } from '../../data/aircraft'
 import ActionBar from '../ActionBar'
 
-const AC_KEYS = Object.keys(AIRCRAFT)
+const AC_KEYS = Object.keys(AIRCRAFT).filter(k => !AIRCRAFT[k].disabled)
 
 export default function Step1Aircraft() {
   const { state, dispatch } = useLoadSheet()

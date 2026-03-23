@@ -19,7 +19,9 @@ export default function Step3Nav() {
     <div>
       <h2 className="text-sm font-bold text-[#1a3a5c] uppercase tracking-wider mb-3">Plan de Navegacion</h2>
 
-      <NavTable />
+      <div className="overflow-x-auto">
+        <NavTable />
+      </div>
 
       <button
         onClick={() => dispatch({ type: 'ADD_NAV_ROW' })}

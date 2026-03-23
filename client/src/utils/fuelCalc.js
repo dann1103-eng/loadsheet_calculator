@@ -1,34 +1,70 @@
-const KG_FACTOR = 3.04
-
-export function calcFuel({ flow, trip, taxi, alt1, alt2, tfob }) {
-  const f = parseFloat(flow) || 0
-  const t = parseFloat(trip) || 0
-  const tx = parseFloat(taxi) || 0
-  const a1 = parseFloat(alt1) || 0
-  const a2 = parseFloat(alt2) || 0
+/**
+ * calcFuel — Calcula combustible a partir de tiempos ingresados (minutos)
+ * y los flujos de combustible (gal/h y KG/h).
+ *
+ * @param {object} params
+ * @param {number} params.flowGal  - Fuel flow en US gal/h (input del usuario)
+ * @param {number} params.flowKg   - Fuel flow en KG/h (input del usuario)
+ * @param {number} params.taxiMin  - Tiempo de TAXI en minutos
+ * @param {number} params.tripMin  - Tiempo de TRIP en minutos
+ * @param {number} params.alt1Min  - Tiempo de ALT 1 en minutos
+ * @param {number} params.alt2Min  - Tiempo de ALT 2 en minutos
+ * @param {number} params.tfob    - Total Fuel On Board en US gal (desde W&B)
+ */
+export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, tfob }) {
+  const fG = parseFloat(flowGal) || 0
+  const fK = parseFloat(flowKg) || 0
+  const txMin = parseFloat(taxiMin) || 0
+  const trMin = parseFloat(tripMin) || 0
+  const a1Min = parseFloat(alt1Min) || 0
+  const a2Min = parseFloat(alt2Min) || 0
   const tb = parseFloat(tfob) || 0
 
-  const rar = t * 0.05
-  const reserve = f > 0 ? f * 0.75 : 0
-  const minReq = t + tx + rar + a1 + a2 + reserve
-  const extra = tb - minReq
+  // Convierte minutos a galones y KG usando los flujos ingresados
+  const minToGal = (min) => fG > 0 ? (min / 60) * fG : 0
+  const minToKg  = (min) => fK > 0 ? (min / 60) * fK : 0
 
-  const galToKg = (g) => g * KG_FACTOR
-  const galToTime = (g) => f > 0 ? Math.round((g / f) * 60) : 0
-  const fmtTime = (mins) => {
-    const h = Math.floor(mins / 60)
-    const m = mins % 60
-    return `${h}:${String(m).padStart(2, '0')}`
-  }
+  const taxiGal    = minToGal(txMin)
+  const taxiKg     = minToKg(txMin)
+  const tripGal    = minToGal(trMin)
+  const tripKg     = minToKg(trMin)
+  const alt1Gal    = minToGal(a1Min)
+  const alt1Kg     = minToKg(a1Min)
+  const alt2Gal    = minToGal(a2Min)
+  const alt2Kg     = minToKg(a2Min)
+
+  // R/R 5% — auto desde TRIP
+  const rarGal     = tripGal * 0.05
+  const rarKg      = tripKg  * 0.05
+  const rarMin     = Math.round(trMin * 0.05)
+
+  // FINAL RESERVE — 45 min fijo (0.75h)
+  const reserveGal = fG * 0.75
+  const reserveKg  = fK * 0.75
+  const reserveMin = 45
+
+  // MIN REQUIRED
+  const minReqGal  = taxiGal + tripGal + rarGal + alt1Gal + alt2Gal + reserveGal
+  const minReqKg   = taxiKg  + tripKg  + rarKg  + alt1Kg  + alt2Kg  + reserveKg
+
+  // Densidad derivada de los flujos ingresados (KG/gal); fallback a 3.04
+  const density    = fG > 0 && fK > 0 ? fK / fG : 3.04
+  const tfobKg     = tb * density
+
+  const extraGal   = tb - minReqGal
+  const extraKg    = extraGal * density
 
   return {
-    rar, reserve, minReq, extra, tfob: tb,
-    flowKgh: f * KG_FACTOR,
-    taxiKg: galToKg(tx), tripKg: galToKg(t), rarKg: galToKg(rar),
-    alt1Kg: galToKg(a1), alt2Kg: galToKg(a2), reserveKg: galToKg(reserve),
-    minReqKg: galToKg(minReq), tfobKg: galToKg(tb), extraKg: galToKg(extra),
-    taxiTime: fmtTime(galToTime(tx)), tripTime: fmtTime(galToTime(t)),
-    rarTime: fmtTime(galToTime(rar)), alt1Time: fmtTime(galToTime(a1)),
-    alt2Time: fmtTime(galToTime(a2)), reserveTime: fmtTime(galToTime(reserve)),
+    taxiGal, taxiKg,
+    tripGal, tripKg,
+    alt1Gal, alt1Kg,
+    alt2Gal, alt2Kg,
+    rarGal, rarKg, rarMin,
+    reserveGal, reserveKg, reserveMin,
+    minReqGal, minReqKg,
+    extraGal, extraKg,
+    tfobKg,
+    // Aliases para compatibilidad con PrintSheet y resúmenes existentes
+    rar: rarGal, reserve: reserveGal, minReq: minReqGal, extra: extraGal,
   }
 }

@@ -37,16 +37,20 @@ export default function PrintSheet() {
 
   const { totalW, totalM, cg } = calcWB(ac, state.wbInputs)
   const tfob = parseFloat(state.wbInputs.fuel) || 0
+  const fd = state.fuelData
   const fuel = calcFuel({
-    flow: state.fuelData.flow, trip: state.fuelData.trip,
-    taxi: state.fuelData.taxi, alt1: state.fuelData.alt1,
-    alt2: state.fuelData.alt2, tfob,
+    flowGal: fd.flowGal, flowKg: fd.flowKg,
+    taxiMin: fd.taxiMin, tripMin: fd.tripMin,
+    alt1Min: fd.alt1Min, alt2Min: fd.alt2Min,
+    tfob,
   })
+  const fmtG = (v) => (v != null && v !== 0) ? v.toFixed(2) : ''
+  const fmtK = (v) => (v != null && v !== 0) ? v.toFixed(1) : ''
 
   const momentHeader = ac.moment_div1000 ? 'Momento (lb·in/1000)' : 'Momento (lb·in)'
 
   return (
-    <div id="print-area" className="print-sheet text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto">
+    <div id="print-area" className="print-sheet bg-white text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto">
       {/* 1. Header */}
       <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-2 mb-3">
         <div>
@@ -233,15 +237,17 @@ export default function PrintSheet() {
               </thead>
               <tbody>
                 {[
-                  ['FLOW', state.fuelData.flow ? `${state.fuelData.flow} gal/h` : '', fuel.flowKgh ? `${fuel.flowKgh.toFixed(1)}` : '', ''],
-                  ['TAXI', state.fuelData.taxi || '', fuel.taxiKg ? fuel.taxiKg.toFixed(1) : '', fuel.taxiTime],
-                  ['TRIP', state.fuelData.trip || '', fuel.tripKg ? fuel.tripKg.toFixed(1) : '', fuel.tripTime],
-                  ['R/R 5%', fuel.rar ? fuel.rar.toFixed(2) : '', fuel.rarKg ? fuel.rarKg.toFixed(1) : '', fuel.rarTime],
-                  ['ALT 1', state.fuelData.alt1 || '', fuel.alt1Kg ? fuel.alt1Kg.toFixed(1) : '', fuel.alt1Time],
-                  ['ALT 2', state.fuelData.alt2 || '', fuel.alt2Kg ? fuel.alt2Kg.toFixed(1) : '', fuel.alt2Time],
-                  ['RESERVE', fuel.reserve ? fuel.reserve.toFixed(2) : '', fuel.reserveKg ? fuel.reserveKg.toFixed(1) : '', fuel.reserveTime],
-                  ['MIN REQ', fuel.minReq ? fuel.minReq.toFixed(2) : '', fuel.minReqKg ? fuel.minReqKg.toFixed(1) : '', ''],
-                  ['TFOB', tfob || '', fuel.tfobKg ? fuel.tfobKg.toFixed(1) : '', ''],
+                  ['POWER SETTING', fd.power ? `${fd.power}%` : '', '', ''],
+                  ['FLOW (gal/h)', fd.flowGal || '', '', ''],
+                  ['FLOW (KG/h)', '', fd.flowKg || '', ''],
+                  ['TAXI',    fmtG(fuel.taxiGal),    fmtK(fuel.taxiKg),    fd.taxiMin || ''],
+                  ['TRIP',    fmtG(fuel.tripGal),    fmtK(fuel.tripKg),    fd.tripMin || ''],
+                  ['R/R 5%', fmtG(fuel.rarGal),     fmtK(fuel.rarKg),     fuel.rarMin ? String(Math.round(fuel.rarMin)) : ''],
+                  ['ALT 1',  fmtG(fuel.alt1Gal),    fmtK(fuel.alt1Kg),    fd.alt1Min || ''],
+                  ['ALT 2',  fmtG(fuel.alt2Gal),    fmtK(fuel.alt2Kg),    fd.alt2Min || ''],
+                  ['RESERVE',fmtG(fuel.reserveGal), fmtK(fuel.reserveKg), fuel.reserveGal > 0 ? '45' : ''],
+                  ['MIN REQ',fmtG(fuel.minReqGal),  fmtK(fuel.minReqKg),  ''],
+                  ['TFOB',   tfob || '',             fmtK(fuel.tfobKg),    ''],
                 ].map(([label, gal, kg, time], i) => (
                   <tr key={i} className={`border-b border-gray-300 ${label === 'MIN REQ' || label === 'TFOB' ? 'font-bold bg-[#e8f0f8]' : ''}`}>
                     <td className="px-1 py-0.5">{label}</td>

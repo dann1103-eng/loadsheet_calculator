@@ -11,7 +11,7 @@ const initialState = {
   fuelBurn: '',
 
   navRows: [{}, {}, {}],
-  fuelData: { power: '', flow: '', flowKgh: '', taxi: '', trip: '', alt1: '', alt2: '' },
+  fuelData: { power: '', flowGal: '', flowKg: '', taxiMin: '', tripMin: '', alt1Min: '', alt2Min: '' },
   timesData: { tod: '', ld: '', etd: '', atd: '', eta: '', ata: '', eet: '', total: '' },
   depAtis: '',
   arrAtis: '',
