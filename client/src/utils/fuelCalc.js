@@ -11,14 +11,15 @@
  * @param {number} params.alt2Min  - Tiempo de ALT 2 en minutos
  * @param {number} params.tfob    - Total Fuel On Board en US gal (desde W&B)
  */
-export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, tfob }) {
+export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, extraMin, tfobMin }) {
   const fG = parseFloat(flowGal) || 0
   const fK = parseFloat(flowKg) || 0
   const txMin = parseFloat(taxiMin) || 0
   const trMin = parseFloat(tripMin) || 0
   const a1Min = parseFloat(alt1Min) || 0
   const a2Min = parseFloat(alt2Min) || 0
-  const tb = parseFloat(tfob) || 0
+  const exMin = parseFloat(extraMin) || 0
+  const tbMin = parseFloat(tfobMin) || 0
 
   // Convierte minutos a galones y KG usando los flujos ingresados
   const minToGal = (min) => fG > 0 ? (min / 60) * fG : 0
@@ -47,12 +48,13 @@ export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, 
   const minReqGal  = taxiGal + tripGal + rarGal + alt1Gal + alt2Gal + reserveGal
   const minReqKg   = taxiKg  + tripKg  + rarKg  + alt1Kg  + alt2Kg  + reserveKg
 
-  // Densidad derivada de los flujos ingresados (KG/gal); fallback a 3.04
-  const density    = fG > 0 && fK > 0 ? fK / fG : 3.04
-  const tfobKg     = tb * density
+  // EXTRA — calculado desde minutos ingresados
+  const extraGal   = minToGal(exMin)
+  const extraKg    = minToKg(exMin)
 
-  const extraGal   = tb - minReqGal
-  const extraKg    = extraGal * density
+  // TFOB — calculado desde minutos ingresados
+  const tfobGal    = minToGal(tbMin)
+  const tfobKg     = minToKg(tbMin)
 
   return {
     taxiGal, taxiKg,
@@ -63,7 +65,7 @@ export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, 
     reserveGal, reserveKg, reserveMin,
     minReqGal, minReqKg,
     extraGal, extraKg,
-    tfobKg,
+    tfobGal, tfobKg,
     // Aliases para compatibilidad con PrintSheet y resúmenes existentes
     rar: rarGal, reserve: reserveGal, minReq: minReqGal, extra: extraGal,
   }

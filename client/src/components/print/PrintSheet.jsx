@@ -36,13 +36,12 @@ export default function PrintSheet() {
   if (!ac) return null
 
   const { totalW, totalM, cg } = calcWB(ac, state.wbInputs)
-  const tfob = parseFloat(state.wbInputs.fuel) || 0
   const fd = state.fuelData
   const fuel = calcFuel({
     flowGal: fd.flowGal, flowKg: fd.flowKg,
     taxiMin: fd.taxiMin, tripMin: fd.tripMin,
     alt1Min: fd.alt1Min, alt2Min: fd.alt2Min,
-    tfob,
+    extraMin: fd.extraMin, tfobMin: fd.tfobMin,
   })
   const fmtG = (v) => (v != null && v !== 0) ? v.toFixed(2) : ''
   const fmtK = (v) => (v != null && v !== 0) ? v.toFixed(1) : ''
@@ -247,9 +246,10 @@ export default function PrintSheet() {
                   ['ALT 2',  fmtG(fuel.alt2Gal),    fmtK(fuel.alt2Kg),    fd.alt2Min || ''],
                   ['RESERVE',fmtG(fuel.reserveGal), fmtK(fuel.reserveKg), fuel.reserveGal > 0 ? '45' : ''],
                   ['MIN REQ',fmtG(fuel.minReqGal),  fmtK(fuel.minReqKg),  ''],
-                  ['TFOB',   tfob || '',             fmtK(fuel.tfobKg),    ''],
+                  ['EXTRA',  fmtG(fuel.extraGal),    fmtK(fuel.extraKg),   fd.extraMin || ''],
+                  ['TFOB',   fmtG(fuel.tfobGal),     fmtK(fuel.tfobKg),    fd.tfobMin || ''],
                 ].map(([label, gal, kg, time], i) => (
-                  <tr key={i} className={`border-b border-gray-300 ${label === 'MIN REQ' || label === 'TFOB' ? 'font-bold bg-[#e8f0f8]' : ''}`}>
+                  <tr key={i} className={`border-b border-gray-300 ${label === 'MIN REQ' || label === 'TFOB' ? 'font-bold bg-[#e8f0f8]' : ''} ${label === 'EXTRA' ? 'font-bold' : ''}`}>
                     <td className="px-1 py-0.5">{label}</td>
                     <td className="px-1 py-0.5 text-right font-mono">{gal}</td>
                     <td className="px-1 py-0.5 text-right font-mono">{kg}</td>

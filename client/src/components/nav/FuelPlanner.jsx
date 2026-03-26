@@ -5,7 +5,6 @@ import { calcFuel } from '../../utils/fuelCalc'
 export default function FuelPlanner() {
   const { state, dispatch } = useLoadSheet()
   const fd = state.fuelData
-  const tfob = parseFloat(state.wbInputs.fuel) || 0
 
   const fuel = useMemo(() => calcFuel({
     flowGal: fd.flowGal,
@@ -14,8 +13,9 @@ export default function FuelPlanner() {
     tripMin: fd.tripMin,
     alt1Min: fd.alt1Min,
     alt2Min: fd.alt2Min,
-    tfob,
-  }), [fd, tfob])
+    extraMin: fd.extraMin,
+    tfobMin: fd.tfobMin,
+  }), [fd])
 
   const setField = (field, value) => dispatch({ type: 'SET_FUEL_DATA', field, value })
 
@@ -194,24 +194,38 @@ export default function FuelPlanner() {
               <td></td>
             </tr>
 
-            {/* EXTRA */}
+            {/* EXTRA — TIME input */}
             <tr className="border-b border-gray-200">
               <td className={labelClass}>EXTRA</td>
-              <td className={`px-2 py-1.5 text-xs text-right font-mono font-bold ${fuel.extraGal >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                {tfob > 0 ? (fuel.extraGal >= 0 ? '+' : '') + fmtGal(fuel.extraGal) : ''}
+              <td className={autoClass}>{fmtGal(fuel.extraGal)}</td>
+              <td className={autoClass}>{fmtKg(fuel.extraKg)}</td>
+              <td className="p-0">
+                <input
+                  className={inputClass}
+                  type="number"
+                  min="0"
+                  value={fd.extraMin}
+                  onChange={e => setField('extraMin', e.target.value)}
+                  placeholder="min"
+                />
               </td>
-              <td className={`px-2 py-1.5 text-xs text-right font-mono ${fuel.extraGal >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                {tfob > 0 ? fmtKg(fuel.extraKg) : ''}
-              </td>
-              <td></td>
             </tr>
 
-            {/* TFOB */}
+            {/* TFOB — TIME input */}
             <tr className="bg-[#e8f0f8]">
               <td className="px-2 py-2 text-xs font-bold text-[#1a3a5c]">TFOB</td>
-              <td className="px-2 py-2 text-xs text-right font-mono font-bold text-[#1a3a5c]">{tfob || ''}</td>
+              <td className="px-2 py-2 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtGal(fuel.tfobGal)}</td>
               <td className="px-2 py-2 text-xs text-right font-mono text-[#1a3a5c]">{fmtKg(fuel.tfobKg)}</td>
-              <td></td>
+              <td className="p-0">
+                <input
+                  className={inputClass + ' font-bold text-[#1a3a5c]'}
+                  type="number"
+                  min="0"
+                  value={fd.tfobMin}
+                  onChange={e => setField('tfobMin', e.target.value)}
+                  placeholder="min"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
