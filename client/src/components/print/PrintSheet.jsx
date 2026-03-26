@@ -41,7 +41,7 @@ export default function PrintSheet() {
     flowGal: fd.flowGal, flowKg: fd.flowKg,
     taxiMin: fd.taxiMin, tripMin: fd.tripMin,
     alt1Min: fd.alt1Min, alt2Min: fd.alt2Min,
-    extraMin: fd.extraMin, tfobMin: fd.tfobMin,
+    extraMin: fd.extraMin,
   })
   const fmtG = (v) => (v != null && v !== 0) ? v.toFixed(2) : ''
   const fmtK = (v) => (v != null && v !== 0) ? v.toFixed(1) : ''
@@ -247,7 +247,7 @@ export default function PrintSheet() {
                   ['RESERVE',fmtG(fuel.reserveGal), fmtK(fuel.reserveKg), fuel.reserveGal > 0 ? '45' : ''],
                   ['MIN REQ',fmtG(fuel.minReqGal),  fmtK(fuel.minReqKg),  ''],
                   ['EXTRA',  fmtG(fuel.extraGal),    fmtK(fuel.extraKg),   fd.extraMin || ''],
-                  ['TFOB',   fmtG(fuel.tfobGal),     fmtK(fuel.tfobKg),    fd.tfobMin || ''],
+                  ['TFOB',   fmtG(fuel.tfobGal),     fmtK(fuel.tfobKg),    ''],
                 ].map(([label, gal, kg, time], i) => (
                   <tr key={i} className={`border-b border-gray-300 ${label === 'MIN REQ' || label === 'TFOB' ? 'font-bold bg-[#e8f0f8]' : ''} ${label === 'EXTRA' ? 'font-bold' : ''}`}>
                     <td className="px-1 py-0.5">{label}</td>

@@ -11,7 +11,7 @@
  * @param {number} params.alt2Min  - Tiempo de ALT 2 en minutos
  * @param {number} params.tfob    - Total Fuel On Board en US gal (desde W&B)
  */
-export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, extraMin, tfobMin }) {
+export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, extraMin }) {
   const fG = parseFloat(flowGal) || 0
   const fK = parseFloat(flowKg) || 0
   const txMin = parseFloat(taxiMin) || 0
@@ -19,7 +19,6 @@ export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, 
   const a1Min = parseFloat(alt1Min) || 0
   const a2Min = parseFloat(alt2Min) || 0
   const exMin = parseFloat(extraMin) || 0
-  const tbMin = parseFloat(tfobMin) || 0
 
   // Convierte minutos a galones y KG usando los flujos ingresados
   const minToGal = (min) => fG > 0 ? (min / 60) * fG : 0
@@ -52,9 +51,9 @@ export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, alt1Min, alt2Min, 
   const extraGal   = minToGal(exMin)
   const extraKg    = minToKg(exMin)
 
-  // TFOB — calculado desde minutos ingresados
-  const tfobGal    = minToGal(tbMin)
-  const tfobKg     = minToKg(tbMin)
+  // TFOB — auto: MIN REQUIRED + EXTRA
+  const tfobGal    = minReqGal + extraGal
+  const tfobKg     = minReqKg  + extraKg
 
   return {
     taxiGal, taxiKg,

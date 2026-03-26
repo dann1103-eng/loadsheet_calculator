@@ -14,7 +14,6 @@ export default function FuelPlanner() {
     alt1Min: fd.alt1Min,
     alt2Min: fd.alt2Min,
     extraMin: fd.extraMin,
-    tfobMin: fd.tfobMin,
   }), [fd])
 
   const setField = (field, value) => dispatch({ type: 'SET_FUEL_DATA', field, value })
@@ -211,21 +210,12 @@ export default function FuelPlanner() {
               </td>
             </tr>
 
-            {/* TFOB — TIME input */}
+            {/* TFOB — auto: MIN REQUIRED + EXTRA */}
             <tr className="bg-[#e8f0f8]">
               <td className="px-2 py-2 text-xs font-bold text-[#1a3a5c]">TFOB</td>
               <td className="px-2 py-2 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtGal(fuel.tfobGal)}</td>
               <td className="px-2 py-2 text-xs text-right font-mono text-[#1a3a5c]">{fmtKg(fuel.tfobKg)}</td>
-              <td className="p-0">
-                <input
-                  className={inputClass + ' font-bold text-[#1a3a5c]'}
-                  type="number"
-                  min="0"
-                  value={fd.tfobMin}
-                  onChange={e => setField('tfobMin', e.target.value)}
-                  placeholder="min"
-                />
-              </td>
+              <td></td>
             </tr>
           </tbody>
         </table>
