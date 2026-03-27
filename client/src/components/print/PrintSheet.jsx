@@ -71,9 +71,9 @@ export default function PrintSheet() {
   })
 
   return (
-    <div id="print-area" className="print-sheet bg-white text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto">
+    <div id="print-area" className="print-sheet bg-white text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto px-1">
       {/* 1. Header */}
-      <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-1 mb-2">
+      <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-0.5 mb-1">
         <div>
           <div className="text-sm font-bold text-[#1a3a5c]">CAAA, S.A. de C.V.</div>
           <div className="text-[9px] text-gray-500">Centro de Adiestramiento Aereo Academico</div>
@@ -87,9 +87,9 @@ export default function PrintSheet() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* LEFT COLUMN */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {/* 2. W&B Table */}
           <table className="w-full border-collapse border border-gray-400 text-[9px]">
             <thead>
@@ -156,7 +156,7 @@ export default function PrintSheet() {
           </table>
 
           {/* 3. Performance Limits */}
-          <div className="border border-gray-400 rounded p-1.5">
+          <div className="border border-gray-400 rounded p-1">
             <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-0.5">Limites de Rendimiento</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[9px]">
               <span className="text-gray-500">Max Takeoff Weight:</span><span className="font-mono">{ac.max_gross.toLocaleString()} lb</span>
@@ -168,15 +168,17 @@ export default function PrintSheet() {
           </div>
 
           {/* 4. Identification */}
-          <div className="border border-gray-400 rounded p-1.5">
+          <div className="border border-gray-400 rounded p-1">
             <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-0.5">Identificacion</div>
             <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[9px]">
               {[
                 ['DEP', state.identification.dep], ['DEST', state.identification.dest],
                 ['DATE', state.identification.date || state.flightData.date], ['REG', ac.reg],
                 ['TYPE', ac.model], ['PIC', state.identification.pic],
-                ['Student', state.identification.student || state.flightData.student],
-                ['Licencia', state.flightData.license],
+                ['Alumno', state.identification.student || state.flightData.student],
+                ['Lic. Alumno', state.flightData.license],
+                ['Instructor', state.flightData.instructor],
+                ['Lic. Inst.', state.flightData.instructorLicense],
                 ['SIGN', state.identification.sign],
               ].map(([l, v]) => (
                 <div key={l}><span className="text-gray-500 text-[8px]">{l}: </span><span className="font-semibold">{v}</span></div>
@@ -245,16 +247,16 @@ export default function PrintSheet() {
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {/* 5. Envelope charts */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="border border-gray-400 rounded p-1.5">
+          <div className="grid grid-cols-2 gap-1.5">
+            <div className="border border-gray-400 rounded p-1">
               <div className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Envolvente — Despegue</div>
-              <canvas ref={canvasToRef} style={{ width: '100%', height: '100px' }} />
+              <canvas ref={canvasToRef} style={{ width: '100%', height: '80px' }} />
             </div>
-            <div className="border border-gray-400 rounded p-1.5">
+            <div className="border border-gray-400 rounded p-1">
               <div className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Envolvente — Aterrizaje</div>
-              <canvas ref={canvasLdgRef} style={{ width: '100%', height: '100px' }} />
+              <canvas ref={canvasLdgRef} style={{ width: '100%', height: '80px' }} />
             </div>
           </div>
 
@@ -360,12 +362,17 @@ export default function PrintSheet() {
       </div>
 
       {/* 12. Signature footer */}
-      <div className="grid grid-cols-3 gap-6 mt-2 pt-2 border-t border-gray-400">
-        {['Firma del Alumno', 'Firma del Instructor', 'Flight Dispatch (Turno)'].map(label => (
+      <div className="grid grid-cols-3 gap-6 mt-1 pt-1 border-t border-gray-400">
+        {[
+          ['Firma del Alumno', state.flightData.student, state.flightData.license],
+          ['Firma del Instructor', state.flightData.instructor, state.flightData.instructorLicense],
+          ['Flight Dispatch (Turno)', '', ''],
+        ].map(([label, name, lic]) => (
           <div key={label} className="text-center">
-            <div className="border-b border-black mb-0.5 h-6"></div>
+            <div className="border-b border-black mb-0.5 h-5"></div>
             <div className="text-[9px] text-gray-600 font-semibold">{label}</div>
-            <div className="text-[8px] text-gray-400 mt-0.5">Nombre: ________________________</div>
+            {name && <div className="text-[8px] text-gray-500">{name}{lic ? ` · Lic: ${lic}` : ''}</div>}
+            {!name && <div className="text-[8px] text-gray-400">Nombre: ________________________</div>}
           </div>
         ))}
       </div>
