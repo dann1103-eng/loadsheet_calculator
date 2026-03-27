@@ -73,7 +73,7 @@ export default function PrintSheet() {
   return (
     <div id="print-area" className="print-sheet bg-white text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto">
       {/* 1. Header */}
-      <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-2 mb-3">
+      <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-1 mb-2">
         <div>
           <div className="text-sm font-bold text-[#1a3a5c]">CAAA, S.A. de C.V.</div>
           <div className="text-[9px] text-gray-500">Centro de Adiestramiento Aereo Academico</div>
@@ -87,32 +87,32 @@ export default function PrintSheet() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         {/* LEFT COLUMN */}
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           {/* 2. W&B Table */}
           <table className="w-full border-collapse border border-gray-400 text-[9px]">
             <thead>
               <tr className="bg-[#1a3a5c] text-white">
-                <th className="text-left px-1.5 py-1 font-semibold">Estacion</th>
-                <th className="text-right px-1.5 py-1 font-semibold w-14">Peso (lb)</th>
-                <th className="text-right px-1.5 py-1 font-semibold w-14">Brazo (in)</th>
-                <th className="text-right px-1.5 py-1 font-semibold w-16">{momentHeader}</th>
+                <th className="text-left px-1.5 py-px font-semibold">Estacion</th>
+                <th className="text-right px-1.5 py-px font-semibold w-14">Peso (lb)</th>
+                <th className="text-right px-1.5 py-px font-semibold w-14">Brazo (in)</th>
+                <th className="text-right px-1.5 py-px font-semibold w-16">{momentHeader}</th>
               </tr>
             </thead>
             <tbody>
               <tr className="border-b border-gray-300">
-                <td className="px-1.5 py-0.5">Empty Weight</td>
-                <td className="px-1.5 py-0.5 text-right font-mono">{ac.empty_weight.toLocaleString()}</td>
-                <td className="px-1.5 py-0.5 text-right font-mono">{ac.empty_arm}</td>
-                <td className="px-1.5 py-0.5 text-right font-mono">{fmtMoment(ac.empty_weight * ac.empty_arm, ac)}</td>
+                <td className="px-1.5 py-px">Empty Weight</td>
+                <td className="px-1.5 py-px text-right font-mono">{ac.empty_weight.toLocaleString()}</td>
+                <td className="px-1.5 py-px text-right font-mono">{ac.empty_arm}</td>
+                <td className="px-1.5 py-px text-right font-mono">{fmtMoment(ac.empty_weight * ac.empty_arm, ac)}</td>
               </tr>
               {ac.oil && (
                 <tr className="border-b border-gray-300">
-                  <td className="px-1.5 py-0.5">{ac.oil.label}</td>
-                  <td className="px-1.5 py-0.5 text-right font-mono">{ac.oil.weight}</td>
-                  <td className="px-1.5 py-0.5 text-right font-mono">{ac.oil.arm}</td>
-                  <td className="px-1.5 py-0.5 text-right font-mono">{fmtMoment(ac.oil.weight * ac.oil.arm, ac)}</td>
+                  <td className="px-1.5 py-px">{ac.oil.label}</td>
+                  <td className="px-1.5 py-px text-right font-mono">{ac.oil.weight}</td>
+                  <td className="px-1.5 py-px text-right font-mono">{ac.oil.arm}</td>
+                  <td className="px-1.5 py-px text-right font-mono">{fmtMoment(ac.oil.weight * ac.oil.arm, ac)}</td>
                 </tr>
               )}
               {ac.stations.map(s => {
@@ -122,42 +122,42 @@ export default function PrintSheet() {
                 return (
                   <Fragment key={s.id}>
                     <tr className="border-b border-gray-300">
-                      <td className="px-1.5 py-0.5">{s.label}</td>
-                      <td className="px-1.5 py-0.5 text-right font-mono">{w ? (s.is_fuel ? `${val} gal = ${w.toFixed(1)}` : w) : ''}</td>
-                      <td className="px-1.5 py-0.5 text-right font-mono">{s.arm}</td>
-                      <td className="px-1.5 py-0.5 text-right font-mono">{w ? fmtMoment(w * s.arm, ac) : ''}</td>
+                      <td className="px-1.5 py-px">{s.label}</td>
+                      <td className="px-1.5 py-px text-right font-mono">{w ? (s.is_fuel ? `${val} gal = ${w.toFixed(1)}` : w) : ''}</td>
+                      <td className="px-1.5 py-px text-right font-mono">{s.arm}</td>
+                      <td className="px-1.5 py-px text-right font-mono">{w ? fmtMoment(w * s.arm, ac) : ''}</td>
                     </tr>
                     {s.is_fuel && state.fuelBurn && (
                       <tr className="border-b border-gray-300 bg-amber-50">
-                        <td className="px-1.5 py-0.5 pl-4 text-amber-700">↳ Quema estimada</td>
-                        <td className="px-1.5 py-0.5 text-right font-mono text-amber-700">−{burnW.toFixed(1)}</td>
-                        <td className="px-1.5 py-0.5 text-right font-mono text-amber-700">{fuelStation?.arm || ''}</td>
-                        <td className="px-1.5 py-0.5 text-right font-mono text-amber-700">{fmtMoment(-(burnW * (fuelStation?.arm || 0)), ac)}</td>
+                        <td className="px-1.5 py-px pl-4 text-amber-700">↳ Quema estimada</td>
+                        <td className="px-1.5 py-px text-right font-mono text-amber-700">−{burnW.toFixed(1)}</td>
+                        <td className="px-1.5 py-px text-right font-mono text-amber-700">{fuelStation?.arm || ''}</td>
+                        <td className="px-1.5 py-px text-right font-mono text-amber-700">{fmtMoment(-(burnW * (fuelStation?.arm || 0)), ac)}</td>
                       </tr>
                     )}
                   </Fragment>
                 )
               })}
               <tr className="bg-[#e8f0f8] font-bold border-t-2 border-[#1a3a5c]">
-                <td className="px-1.5 py-1 text-[#1a3a5c]">TOTAL DESPEGUE</td>
-                <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{totalW.toLocaleString()}</td>
-                <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{cg.toFixed(2)}</td>
-                <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{fmtMoment(totalM, ac)}</td>
+                <td className="px-1.5 py-px text-[#1a3a5c]">TOTAL DESPEGUE</td>
+                <td className="px-1.5 py-px text-right font-mono text-[#1a3a5c]">{totalW.toLocaleString()}</td>
+                <td className="px-1.5 py-px text-right font-mono text-[#1a3a5c]">{cg.toFixed(2)}</td>
+                <td className="px-1.5 py-px text-right font-mono text-[#1a3a5c]">{fmtMoment(totalM, ac)}</td>
               </tr>
               {wb.ldgW > 0 && (
                 <tr className="bg-[#d4e8f8] font-bold border-t border-[#1a3a5c]">
-                  <td className="px-1.5 py-1 text-[#1a3a5c]">TOTAL ATERRIZAJE</td>
-                  <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{Math.round(wb.ldgW).toLocaleString()}</td>
-                  <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{(wb.ldgCG || 0).toFixed(2)}</td>
-                  <td className="px-1.5 py-1 text-right font-mono text-[#1a3a5c]">{fmtMoment(wb.ldgM || 0, ac)}</td>
+                  <td className="px-1.5 py-px text-[#1a3a5c]">TOTAL ATERRIZAJE</td>
+                  <td className="px-1.5 py-px text-right font-mono text-[#1a3a5c]">{Math.round(wb.ldgW).toLocaleString()}</td>
+                  <td className="px-1.5 py-px text-right font-mono text-[#1a3a5c]">{(wb.ldgCG || 0).toFixed(2)}</td>
+                  <td className="px-1.5 py-px text-right font-mono text-[#1a3a5c]">{fmtMoment(wb.ldgM || 0, ac)}</td>
                 </tr>
               )}
             </tbody>
           </table>
 
           {/* 3. Performance Limits */}
-          <div className="border border-gray-400 rounded p-2">
-            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Limites de Rendimiento</div>
+          <div className="border border-gray-400 rounded p-1.5">
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-0.5">Limites de Rendimiento</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[9px]">
               <span className="text-gray-500">Max Takeoff Weight:</span><span className="font-mono">{ac.max_gross.toLocaleString()} lb</span>
               <span className="text-gray-500">Max Landing Weight:</span><span className="font-mono">{ac.max_landing.toLocaleString()} lb</span>
@@ -168,8 +168,8 @@ export default function PrintSheet() {
           </div>
 
           {/* 4. Identification */}
-          <div className="border border-gray-400 rounded p-2">
-            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Identificacion</div>
+          <div className="border border-gray-400 rounded p-1.5">
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-0.5">Identificacion</div>
             <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[9px]">
               {[
                 ['DEP', state.identification.dep], ['DEST', state.identification.dest],
@@ -182,7 +182,7 @@ export default function PrintSheet() {
                 <div key={l}><span className="text-gray-500 text-[8px]">{l}: </span><span className="font-semibold">{v}</span></div>
               ))}
             </div>
-            <div className="grid grid-cols-4 gap-x-2 mt-1 text-[9px]">
+            <div className="grid grid-cols-4 gap-x-2 mt-0.5 text-[9px]">
               <div><span className="text-gray-500 text-[8px]">TOM: </span><span className="font-mono font-semibold">{Math.round(totalW)} lb</span></div>
               <div><span className="text-gray-500 text-[8px]">LM: </span><span className="font-mono font-semibold">{Math.round(wb.ldgW || 0)} lb</span></div>
               <div><span className="text-gray-500 text-[8px]">TCG: </span><span className="font-mono font-semibold">{cg.toFixed(2)} in</span></div>
@@ -193,18 +193,18 @@ export default function PrintSheet() {
           {/* 6. Nav table compact */}
           {navRows.some(r => r.waypoint || r.nm) && (
             <div>
-              <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Plan de Navegacion</div>
+              <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-0.5">Plan de Navegacion</div>
               <table className="w-full border-collapse border border-gray-400 text-[8px]">
                 <thead>
                   <tr className="bg-[#1a3a5c] text-white">
-                    <th className="px-1 py-0.5">WPT</th><th className="px-1 py-0.5">ALT</th>
-                    <th className="px-1 py-0.5">TC</th><th className="px-1 py-0.5">MH</th>
-                    <th className="px-1 py-0.5">TAS</th><th className="px-1 py-0.5">GS</th>
-                    <th className="px-1 py-0.5">NM</th><th className="px-1 py-0.5">ACUM</th>
-                    <th className="px-1 py-0.5">ETE</th>
-                    <th className="px-1 py-0.5">ETA</th>
-                    <th className="px-1 py-0.5">REQ</th>
-                    <th className="px-1 py-0.5">REM</th>
+                    <th className="px-1 py-px">WPT</th><th className="px-1 py-px">ALT</th>
+                    <th className="px-1 py-px">TC</th><th className="px-1 py-px">MH</th>
+                    <th className="px-1 py-px">TAS</th><th className="px-1 py-px">GS</th>
+                    <th className="px-1 py-px">NM</th><th className="px-1 py-px">ACUM</th>
+                    <th className="px-1 py-px">ETE</th>
+                    <th className="px-1 py-px">ETA</th>
+                    <th className="px-1 py-px">REQ</th>
+                    <th className="px-1 py-px">REM</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -212,30 +212,30 @@ export default function PrintSheet() {
                     const acumVal = navRows.slice(0, i + 1).reduce((s, row) => s + (parseFloat(row.nm) || 0), 0)
                     return (
                       <tr key={i} className="border-b border-gray-300">
-                        <td className="px-1 py-0.5">{r.waypoint || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.altfl || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.tc || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.mh || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.tas || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.gs || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.nm || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{acumVal || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r.ete || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r['eta-h'] && r['eta-m'] ? `${r['eta-h']}:${r['eta-m']}` : ''}</td>
-                        <td className="px-1 py-0.5 text-center">{r['fuel-req'] || ''}</td>
-                        <td className="px-1 py-0.5 text-center">{fuelActCalc[i]}</td>
+                        <td className="px-1 py-px">{r.waypoint || ''}</td>
+                        <td className="px-1 py-px text-center">{r.altfl || ''}</td>
+                        <td className="px-1 py-px text-center">{r.tc || ''}</td>
+                        <td className="px-1 py-px text-center">{r.mh || ''}</td>
+                        <td className="px-1 py-px text-center">{r.tas || ''}</td>
+                        <td className="px-1 py-px text-center">{r.gs || ''}</td>
+                        <td className="px-1 py-px text-center">{r.nm || ''}</td>
+                        <td className="px-1 py-px text-center">{acumVal || ''}</td>
+                        <td className="px-1 py-px text-center">{r.ete || ''}</td>
+                        <td className="px-1 py-px text-center">{r['eta-h'] && r['eta-m'] ? `${r['eta-h']}:${r['eta-m']}` : ''}</td>
+                        <td className="px-1 py-px text-center">{r['fuel-req'] || ''}</td>
+                        <td className="px-1 py-px text-center">{fuelActCalc[i]}</td>
                       </tr>
                     )
                   })}
                 </tbody>
                 <tfoot>
                   <tr className="bg-[#e8f0f8] font-bold border-t-2 border-[#1a3a5c]">
-                    <td className="px-1 py-0.5 text-[#1a3a5c]" colSpan={6}>TOTAL</td>
-                    <td className="px-1 py-0.5 text-center font-mono text-[#1a3a5c]">{totalNM || ''}</td>
-                    <td className="px-1 py-0.5 text-center font-mono text-[#1a3a5c]">{totalNM || ''}</td>
+                    <td className="px-1 py-px text-[#1a3a5c]" colSpan={6}>TOTAL</td>
+                    <td className="px-1 py-px text-center font-mono text-[#1a3a5c]">{totalNM || ''}</td>
+                    <td className="px-1 py-px text-center font-mono text-[#1a3a5c]">{totalNM || ''}</td>
                     <td></td>
                     <td></td>
-                    <td className="px-1 py-0.5 text-center font-mono text-[#1a3a5c]">{totalFuelReq || ''}</td>
+                    <td className="px-1 py-px text-center font-mono text-[#1a3a5c]">{totalFuelReq || ''}</td>
                     <td></td>
                   </tr>
                 </tfoot>
@@ -245,16 +245,16 @@ export default function PrintSheet() {
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           {/* 5. Envelope charts */}
           <div className="grid grid-cols-2 gap-2">
             <div className="border border-gray-400 rounded p-1.5">
-              <div className="text-[8px] font-bold text-gray-500 uppercase mb-1">Envolvente — Despegue</div>
-              <canvas ref={canvasToRef} style={{ width: '100%', height: '160px' }} />
+              <div className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Envolvente — Despegue</div>
+              <canvas ref={canvasToRef} style={{ width: '100%', height: '100px' }} />
             </div>
             <div className="border border-gray-400 rounded p-1.5">
-              <div className="text-[8px] font-bold text-gray-500 uppercase mb-1">Envolvente — Aterrizaje</div>
-              <canvas ref={canvasLdgRef} style={{ width: '100%', height: '160px' }} />
+              <div className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Envolvente — Aterrizaje</div>
+              <canvas ref={canvasLdgRef} style={{ width: '100%', height: '100px' }} />
             </div>
           </div>
 
@@ -266,10 +266,10 @@ export default function PrintSheet() {
               { key: 'alt', title: 'Alternado' },
             ].map(sec => (
               <div key={sec.key} className="border border-gray-400 rounded overflow-hidden">
-                <div className="bg-[#1a3a5c] text-white px-1.5 py-0.5 text-[8px] font-bold uppercase">{sec.title}</div>
+                <div className="bg-[#1a3a5c] text-white px-1.5 py-px text-[8px] font-bold uppercase">{sec.title}</div>
                 <div className="p-1">
                   {[['AP', 'ap'], ['RWY', 'rwy'], ['APPR', 'appr'], ['VIS', 'vis'], ['CEIL', 'ceil']].map(([l, f]) => (
-                    <div key={f} className="flex justify-between py-0.5 border-b border-dashed border-gray-200 last:border-0 text-[8px]">
+                    <div key={f} className="flex justify-between py-px border-b border-dashed border-gray-200 last:border-0 text-[8px]">
                       <span className="text-gray-500">{l}</span>
                       <span className="font-semibold">{state.opsData[sec.key][f] || ''}</span>
                     </div>
@@ -286,21 +286,25 @@ export default function PrintSheet() {
 
           {/* 7. Fuel table */}
           <div>
-            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Combustible</div>
+            <div className="flex items-center justify-between mb-0.5">
+              <div className="text-[9px] font-bold text-[#1a3a5c] uppercase">Combustible</div>
+              <div className="text-[7px] text-gray-500">
+                {fd.power && <span className="mr-2">PWR: {fd.power}%</span>}
+                {fd.flowGal && <span className="mr-2">FLOW: {fd.flowGal} gal/h</span>}
+                {fd.flowKg && <span>({fd.flowKg} KG/h)</span>}
+              </div>
+            </div>
             <table className="w-full border-collapse border border-gray-400 text-[8px]">
               <thead>
                 <tr className="bg-[#1a3a5c] text-white">
-                  <th className="text-left px-1 py-0.5">Desc.</th>
-                  <th className="text-right px-1 py-0.5 w-12">US gal</th>
-                  <th className="text-right px-1 py-0.5 w-10">KG</th>
-                  <th className="text-right px-1 py-0.5 w-10">TIME</th>
+                  <th className="text-left px-1 py-px">Desc.</th>
+                  <th className="text-right px-1 py-px w-12">US gal</th>
+                  <th className="text-right px-1 py-px w-10">KG</th>
+                  <th className="text-right px-1 py-px w-10">TIME</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ['POWER SETTING', fd.power ? `${fd.power}%` : '', '', ''],
-                  ['FLOW (gal/h)', fd.flowGal || '', '', ''],
-                  ['FLOW (KG/h)', '', fd.flowKg || '', ''],
                   ['TAXI',    fmtG(fuel.taxiGal),    fmtK(fuel.taxiKg),    fd.taxiMin || ''],
                   ['TRIP',    fmtG(fuel.tripGal),    fmtK(fuel.tripKg),    fd.tripMin || ''],
                   ['R/R 5%',  fmtG(fuel.rarGal),     fmtK(fuel.rarKg),     fd.rarMin || ''],
@@ -312,10 +316,10 @@ export default function PrintSheet() {
                   ['TFOB',    fmtG(fuel.tfobGal),    fmtK(fuel.tfobKg),    fmtMin(fuel.tfobMin)],
                 ].map(([label, gal, kg, time], i) => (
                   <tr key={i} className={`border-b border-gray-300 ${label === 'MIN REQ' || label === 'TFOB' ? 'font-bold bg-[#e8f0f8]' : ''} ${label === 'EXTRA' ? 'font-bold' : ''}`}>
-                    <td className="px-1 py-0.5">{label}</td>
-                    <td className="px-1 py-0.5 text-right font-mono">{gal}</td>
-                    <td className="px-1 py-0.5 text-right font-mono">{kg}</td>
-                    <td className="px-1 py-0.5 text-right font-mono">{time}</td>
+                    <td className="px-1 py-px">{label}</td>
+                    <td className="px-1 py-px text-right font-mono">{gal}</td>
+                    <td className="px-1 py-px text-right font-mono">{kg}</td>
+                    <td className="px-1 py-px text-right font-mono">{time}</td>
                   </tr>
                 ))}
               </tbody>
@@ -324,10 +328,10 @@ export default function PrintSheet() {
 
           {/* 8. Times */}
           <div>
-            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-1">Tiempos</div>
+            <div className="text-[9px] font-bold text-[#1a3a5c] uppercase mb-0.5">Tiempos</div>
             <div className="grid grid-cols-4 gap-1 text-[9px]">
               {[['TOD', 'tod'], ['LD', 'ld'], ['ETD', 'etd'], ['ATD', 'atd'], ['ETA', 'eta'], ['ATA', 'ata'], ['EET', 'eet'], ['TOTAL', 'total']].map(([l, f]) => (
-                <div key={f} className="border border-gray-300 rounded px-1.5 py-0.5">
+                <div key={f} className="border border-gray-300 rounded px-1.5 py-px">
                   <span className="text-gray-500 text-[8px]">{l}: </span>
                   <span className="font-mono font-semibold">{state.timesData[f] || '—'}</span>
                 </div>
@@ -337,10 +341,10 @@ export default function PrintSheet() {
 
           {/* 9. ATIS */}
           <div className="grid grid-cols-2 gap-2 text-[9px]">
-            <div className="border border-gray-300 rounded px-1.5 py-0.5">
+            <div className="border border-gray-300 rounded px-1.5 py-px">
               <span className="text-gray-500 text-[8px]">DEP ATIS: </span><span className="font-semibold">{state.depAtis || '—'}</span>
             </div>
-            <div className="border border-gray-300 rounded px-1.5 py-0.5">
+            <div className="border border-gray-300 rounded px-1.5 py-px">
               <span className="text-gray-500 text-[8px]">ARR ATIS: </span><span className="font-semibold">{state.arrAtis || '—'}</span>
             </div>
           </div>
@@ -356,10 +360,10 @@ export default function PrintSheet() {
       </div>
 
       {/* 12. Signature footer */}
-      <div className="grid grid-cols-3 gap-6 mt-6 pt-3 border-t border-gray-400">
+      <div className="grid grid-cols-3 gap-6 mt-2 pt-2 border-t border-gray-400">
         {['Firma del Alumno', 'Firma del Instructor', 'Flight Dispatch (Turno)'].map(label => (
           <div key={label} className="text-center">
-            <div className="border-b border-black mb-1 h-8"></div>
+            <div className="border-b border-black mb-0.5 h-6"></div>
             <div className="text-[9px] text-gray-600 font-semibold">{label}</div>
             <div className="text-[8px] text-gray-400 mt-0.5">Nombre: ________________________</div>
           </div>
