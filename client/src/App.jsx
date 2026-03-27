@@ -7,7 +7,7 @@ import Step4Ops from './components/steps/Step4Ops'
 import Step5Summary from './components/steps/Step5Summary'
 
 function StatusBadge({ status }) {
-  if (status === true) return <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">APTO</span>
+  if (status === true) return <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">LISTO</span>
   if (status === false) return <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">REVISAR</span>
   return <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500">PENDIENTE</span>
 }

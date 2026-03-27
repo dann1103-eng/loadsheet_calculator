@@ -48,7 +48,9 @@ export default function Step5Summary() {
       const yOffset = margin + (maxImgH - imgH) / 2
 
       pdf.addImage(dataUrl, 'JPEG', xOffset, yOffset, imgW, imgH)
-      pdf.save('loadsheet-caaa.pdf')
+      const student = (state.identification.student || state.flightData.student || 'alumno').replace(/\s+/g, '_')
+      const date = state.flightData.date || 'fecha'
+      pdf.save(`loadsheet-${student}-${ac.reg}-${date}.pdf`)
     } catch (err) {
       alert('Error PDF: ' + (err?.message || String(err)))
     }
@@ -68,7 +70,7 @@ export default function Step5Summary() {
         calcResults: {
           grossWeight: wb.totalW,
           cg: wb.cg,
-          status: wb.allOk ? 'APTO' : 'REVISAR',
+          status: wb.allOk ? 'LISTO' : 'REVISAR',
         },
         navRows: state.navRows,
         fuelData: state.fuelData,
@@ -100,14 +102,14 @@ export default function Step5Summary() {
     ['CG', wb.cg ? `${wb.cg.toFixed(2)} in` : '—'],
     ['Salida', state.opsData.dep.ap || state.identification.dep || '—'],
     ['Destino', state.opsData.dest.ap || state.identification.dest || '—'],
-    ['Estado W&B', wb.allOk ? 'APTO ✓' : 'REVISAR ✗'],
+    ['Estado W&B', wb.allOk ? 'LISTO ✓' : 'REVISAR ✗'],
   ]
 
   return (
     <div>
       <StatusStrip
         isApto={wb.allOk ? true : wb.totalW > 0 ? false : null}
-        message={wb.allOk ? 'Peso y balance APTO — listo para envio' : wb.totalW > 0 ? 'Peso y balance REQUIERE REVISION' : undefined}
+        message={wb.allOk ? 'Peso y balance LISTO — listo para envio' : wb.totalW > 0 ? 'Peso y balance REQUIERE REVISION' : undefined}
       />
 
       <h2 className="text-sm font-bold text-[#1a3a5c] uppercase tracking-wider mb-3">Resumen del Load Sheet</h2>

@@ -48,7 +48,8 @@ export default function Step1Aircraft() {
         </div>
         <div>
           <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Hora (UTC)</label>
-          <input type="time" value={state.flightData.time} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'time', value: e.target.value })}
+          <input type="text" value={state.flightData.time} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'time', value: e.target.value })}
+            placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" maxLength={5}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]" />
         </div>
         <div>

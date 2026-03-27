@@ -6,15 +6,20 @@ export default function FuelPlanner() {
   const { state, dispatch } = useLoadSheet()
   const fd = state.fuelData
 
+  // TFOB comes from the W&B fuel input (gallons loaded in Step 2)
+  const tfobGal = parseFloat(state.wbInputs['fuel']) || 0
+
   const fuel = useMemo(() => calcFuel({
     flowGal: fd.flowGal,
     flowKg: fd.flowKg,
     taxiMin: fd.taxiMin,
     tripMin: fd.tripMin,
+    rarMin: fd.rarMin,
     alt1Min: fd.alt1Min,
     alt2Min: fd.alt2Min,
-    extraMin: fd.extraMin,
-  }), [fd])
+    reserveMin: fd.reserveMin,
+    tfobGal,
+  }), [fd, tfobGal])
 
   const setField = (field, value) => dispatch({ type: 'SET_FUEL_DATA', field, value })
 
@@ -135,12 +140,21 @@ export default function FuelPlanner() {
               </td>
             </tr>
 
-            {/* R/R 5% — auto */}
+            {/* R/R 5% — TIME input manual (opcional, solo IFR) */}
             <tr className="border-b border-gray-200">
               <td className={labelClass}>R/R 5% (IFR)</td>
               <td className={autoClass}>{fmtGal(fuel.rarGal)}</td>
               <td className={autoClass}>{fmtKg(fuel.rarKg)}</td>
-              <td className={autoClass}>{fmtMin(fuel.rarMin)}</td>
+              <td className="p-0">
+                <input
+                  className={inputClass}
+                  type="number"
+                  min="0"
+                  value={fd.rarMin}
+                  onChange={e => setField('rarMin', e.target.value)}
+                  placeholder="min"
+                />
+              </td>
             </tr>
 
             {/* ALT 1 — TIME input */}
@@ -177,48 +191,51 @@ export default function FuelPlanner() {
               </td>
             </tr>
 
-            {/* FINAL RESERVE — auto (45 min) */}
+            {/* FINAL RESERVE — TIME input manual */}
             <tr className="border-b border-gray-200">
               <td className={labelClass}>FINAL RESERVE</td>
               <td className={autoClass}>{fmtGal(fuel.reserveGal)}</td>
               <td className={autoClass}>{fmtKg(fuel.reserveKg)}</td>
-              <td className={autoClass}>{fuel.reserveGal > 0 ? '45' : ''}</td>
-            </tr>
-
-            {/* MIN REQUIRED */}
-            <tr className="border-b border-gray-200 bg-[#e8f0f8]">
-              <td className="px-2 py-1.5 text-xs font-bold text-[#1a3a5c]">MIN REQUIRED</td>
-              <td className="px-2 py-1.5 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtGal(fuel.minReqGal)}</td>
-              <td className="px-2 py-1.5 text-xs text-right font-mono text-[#1a3a5c]">{fmtKg(fuel.minReqKg)}</td>
-              <td></td>
-            </tr>
-
-            {/* EXTRA — TIME input */}
-            <tr className="border-b border-gray-200">
-              <td className={labelClass}>EXTRA</td>
-              <td className={autoClass}>{fmtGal(fuel.extraGal)}</td>
-              <td className={autoClass}>{fmtKg(fuel.extraKg)}</td>
               <td className="p-0">
                 <input
                   className={inputClass}
                   type="number"
                   min="0"
-                  value={fd.extraMin}
-                  onChange={e => setField('extraMin', e.target.value)}
+                  value={fd.reserveMin}
+                  onChange={e => setField('reserveMin', e.target.value)}
                   placeholder="min"
                 />
               </td>
             </tr>
 
-            {/* TFOB — auto: MIN REQUIRED + EXTRA */}
+            {/* MIN REQUIRED — auto-suma, muestra gal + min */}
+            <tr className="border-b border-gray-200 bg-[#e8f0f8]">
+              <td className="px-2 py-1.5 text-xs font-bold text-[#1a3a5c]">MIN REQUIRED</td>
+              <td className="px-2 py-1.5 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtGal(fuel.minReqGal)}</td>
+              <td className="px-2 py-1.5 text-xs text-right font-mono text-[#1a3a5c]">{fmtKg(fuel.minReqKg)}</td>
+              <td className="px-2 py-1.5 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtMin(fuel.minReqMin)}</td>
+            </tr>
+
+            {/* EXTRA — auto: TFOB − MIN REQUIRED */}
+            <tr className="border-b border-gray-200">
+              <td className={labelClass}>EXTRA</td>
+              <td className={autoClass}>{fmtGal(fuel.extraGal)}</td>
+              <td className={autoClass}>{fmtKg(fuel.extraKg)}</td>
+              <td className={autoClass}>{fmtMin(fuel.extraMin)}</td>
+            </tr>
+
+            {/* TFOB — auto desde W&B, muestra gal + min */}
             <tr className="bg-[#e8f0f8]">
               <td className="px-2 py-2 text-xs font-bold text-[#1a3a5c]">TFOB</td>
               <td className="px-2 py-2 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtGal(fuel.tfobGal)}</td>
               <td className="px-2 py-2 text-xs text-right font-mono text-[#1a3a5c]">{fmtKg(fuel.tfobKg)}</td>
-              <td></td>
+              <td className="px-2 py-2 text-xs text-right font-mono font-bold text-[#1a3a5c]">{fmtMin(fuel.tfobMin)}</td>
             </tr>
           </tbody>
         </table>
+        {tfobGal === 0 && (
+          <p className="text-[10px] text-amber-600 mt-1">⚠ Ingresa el combustible en el Paso 2 (W&B) para calcular TFOB.</p>
+        )}
       </div>
     </div>
   )

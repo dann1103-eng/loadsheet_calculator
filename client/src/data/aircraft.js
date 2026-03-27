@@ -12,6 +12,8 @@ export const AIRCRAFT = {
     fuel_usable_gal: 48,
     fuel_lb_gal: 6.0,
     fuel_burn_note: '10 gal/hr',
+    default_power: 75,
+    default_flow_gal: 10,
     moment_div1000: false,
     oil: { label: 'Oil (8qt max, 7lb/gal)', arm: 29.5, weight: 14 },
     stations: [
@@ -46,6 +48,8 @@ export const AIRCRAFT = {
     fuel_usable_gal: 48,
     fuel_lb_gal: 6.0,
     fuel_burn_note: '8 gal/hr',
+    default_power: 75,
+    default_flow_gal: 6,
     moment_div1000: false,
     oil: { label: 'Oil (8qt max, 7lb/gal)', arm: 27.5, weight: 14 },
     stations: [
@@ -79,6 +83,8 @@ export const AIRCRAFT = {
     fuel_usable_gal: 48,
     fuel_lb_gal: 6.0,
     fuel_burn_note: '8 gal/hr',
+    default_power: 75,
+    default_flow_gal: 8,
     moment_div1000: false,
     oil: { label: 'Oil (8qt max, 7lb/gal)', arm: 27.5, weight: 14 },
     stations: [
@@ -113,6 +119,8 @@ export const AIRCRAFT = {
     fuel_usable_gal: 24.5,
     fuel_lb_gal: 6.0,
     fuel_burn_note: 'Aprox. 6.8 gal/Hr @ 75% Power',
+    default_power: 75,
+    default_flow_gal: 6,
     moment_div1000: true,
     oil: null,
     stations: [
@@ -143,6 +151,8 @@ export const AIRCRAFT = {
     fuel_usable_gal: 30,
     fuel_lb_gal: 6.0,
     fuel_burn_note: 'Aprox. 6 gal/Hr @ 65% Power',
+    default_power: 75,
+    default_flow_gal: 6,
     moment_div1000: false,
     oil: null,
     stations: [

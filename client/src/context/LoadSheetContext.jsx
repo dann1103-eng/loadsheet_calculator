@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer } from 'react'
+import { AIRCRAFT } from '../data/aircraft'
 
 const initialState = {
   currentAC: 'pa28r180',
@@ -11,7 +12,7 @@ const initialState = {
   fuelBurn: '',
 
   navRows: [{}, {}, {}],
-  fuelData: { power: '', flowGal: '', flowKg: '', taxiMin: '', tripMin: '', alt1Min: '', alt2Min: '', extraMin: '' },
+  fuelData: { power: '75', flowGal: '10', flowKg: '27.2', taxiMin: '', tripMin: '', rarMin: '', alt1Min: '', alt2Min: '', reserveMin: '' },
   timesData: { tod: '', ld: '', etd: '', atd: '', eta: '', ata: '', eet: '', total: '' },
   depAtis: '',
   arrAtis: '',
@@ -20,12 +21,25 @@ const initialState = {
   identification: { dep: '', dest: '', date: '', reg: '', type: '', pic: '', student: '', sign: '', tom: '', lm: '', tog: '', lcg: '' },
 
   opsData: {
-    dep: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
-    dest: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
-    alt: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
+    dep: { ap: '', rwy: '', appr: '', vis: '', ceil: '', remarks: '' },
+    dest: { ap: '', rwy: '', appr: '', vis: '', ceil: '', remarks: '' },
+    alt: { ap: '', rwy: '', appr: '', vis: '', ceil: '', remarks: '' },
   },
 
   submitStatus: 'idle',
+}
+
+function getDefaultFuelData(acKey) {
+  const ac = AIRCRAFT[acKey]
+  if (!ac) return {}
+  const flowGal = ac.default_flow_gal || ''
+  const flowKg = flowGal ? parseFloat((flowGal * ac.fuel_lb_gal * 0.453592).toFixed(1)) : ''
+  return {
+    power: String(ac.default_power || ''),
+    flowGal: String(flowGal),
+    flowKg: String(flowKg),
+    taxiMin: '', tripMin: '', rarMin: '', alt1Min: '', alt2Min: '', reserveMin: '',
+  }
 }
 
 function reducer(state, action) {
@@ -33,7 +47,12 @@ function reducer(state, action) {
     case 'SET_STEP':
       return { ...state, step: action.payload }
     case 'SET_AIRCRAFT':
-      return { ...state, currentAC: action.payload, wbInputs: {} }
+      return {
+        ...state,
+        currentAC: action.payload,
+        wbInputs: {},
+        fuelData: { ...state.fuelData, ...getDefaultFuelData(action.payload) },
+      }
     case 'SET_FLIGHT_DATA':
       return { ...state, flightData: { ...state.flightData, [action.field]: action.value } }
     case 'SET_WB_INPUT':

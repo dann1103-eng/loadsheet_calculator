@@ -28,7 +28,7 @@ export default function ResultCards() {
     },
     {
       label: 'Estado W&B',
-      value: wb.allOk ? 'APTO ✓' : 'REVISAR ✗',
+      value: wb.allOk ? 'LISTO ✓' : 'REVISAR ✗',
       ok: wb.allOk,
       sub: wb.allOk ? 'Listo para vuelo' : 'Verificar limites',
     },

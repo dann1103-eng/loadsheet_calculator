@@ -54,7 +54,7 @@ export default function Step3Nav() {
             <div className="grid grid-cols-4 gap-2 mt-2">
               <div><label className={labelClass}>TOM (lb)</label><input className={inputClass} value={state.identification.tom || Math.round(state.wbResults.totalW) || ''} onChange={e => setId('tom', e.target.value)} /></div>
               <div><label className={labelClass}>LM (lb)</label><input className={inputClass} value={state.identification.lm || Math.round(state.wbResults.ldgW || 0) || ''} onChange={e => setId('lm', e.target.value)} /></div>
-              <div><label className={labelClass}>TOG (in)</label><input className={inputClass} value={state.identification.tog || (state.wbResults.cg ? state.wbResults.cg.toFixed(2) : '')} onChange={e => setId('tog', e.target.value)} /></div>
+              <div><label className={labelClass}>TCG (in)</label><input className={inputClass} value={state.identification.tog || (state.wbResults.cg ? state.wbResults.cg.toFixed(2) : '')} onChange={e => setId('tog', e.target.value)} /></div>
               <div><label className={labelClass}>LCG (in)</label><input className={inputClass} value={state.identification.lcg || (state.wbResults.ldgCG ? state.wbResults.ldgCG.toFixed(2) : '')} onChange={e => setId('lcg', e.target.value)} /></div>
             </div>
           </div>

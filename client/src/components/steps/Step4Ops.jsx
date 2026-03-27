@@ -13,6 +13,7 @@ const FIELDS = [
   { id: 'appr', label: 'Tipo de aproximacion' },
   { id: 'vis', label: 'Visibilidad requerida' },
   { id: 'ceil', label: 'Techo requerido' },
+  { id: 'remarks', label: 'Ruta (Remarks)' },
 ]
 
 export default function Step4Ops() {
@@ -31,16 +32,30 @@ export default function Step4Ops() {
               {sec.title}
             </div>
             <div className="p-3 space-y-3">
-              {FIELDS.map(f => (
-                <div key={f.id}>
-                  <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">{f.label}</label>
-                  <input
-                    className={inputClass}
-                    value={state.opsData[sec.key][f.id]}
-                    onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
-                  />
-                </div>
-              ))}
+              {FIELDS.map(f => {
+                const label = f.id === 'appr' && sec.key === 'dep'
+                  ? f.label + ' (en caso de retorno)'
+                  : f.label
+                return (
+                  <div key={f.id}>
+                    <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">{label}</label>
+                    {f.id === 'remarks' ? (
+                      <textarea
+                        rows={2}
+                        className={`${inputClass} resize-none`}
+                        value={state.opsData[sec.key][f.id] || ''}
+                        onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
+                      />
+                    ) : (
+                      <input
+                        className={inputClass}
+                        value={state.opsData[sec.key][f.id] || ''}
+                        onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
+                      />
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         ))}
