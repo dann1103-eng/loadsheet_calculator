@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, Fragment } from 'react'
 import { useLoadSheet } from '../../context/LoadSheetContext'
 import { AIRCRAFT } from '../../data/aircraft'
 import { fmtMoment, calcWB, checkCGInEnvelope } from '../../utils/wbCalc'
@@ -87,8 +87,8 @@ export default function WBTable() {
             const isWarn = maxVal && !isOver && numVal > maxVal * 0.9
 
             return (
-              <>
-                <tr key={s.id} className="border-b border-gray-200">
+              <Fragment key={s.id}>
+                <tr className="border-b border-gray-200">
                   <td className="px-2 py-1.5 text-xs font-medium text-gray-600">{s.label}</td>
                   <td className="px-2 py-1.5 text-right">
                     <input
@@ -112,7 +112,7 @@ export default function WBTable() {
 
                 {/* Combustible de quema estimada — right after fuel row */}
                 {s.is_fuel && (
-                  <tr key={`${s.id}-burn`} className="border-b border-gray-200 bg-amber-50">
+                  <tr className="border-b border-gray-200 bg-amber-50">
                     <td className="px-2 py-1.5 text-xs font-medium text-amber-700 pl-6">↳ Quema estimada (gal)</td>
                     <td className="px-2 py-1.5 text-right">
                       <input
@@ -132,7 +132,7 @@ export default function WBTable() {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             )
           })}
 

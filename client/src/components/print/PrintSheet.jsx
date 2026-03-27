@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, Fragment } from 'react'
 import { useLoadSheet } from '../../context/LoadSheetContext'
 import { AIRCRAFT } from '../../data/aircraft'
 import { fmtMoment, calcWB } from '../../utils/wbCalc'
@@ -59,13 +59,6 @@ export default function PrintSheet() {
   const navRows = state.navRows
   const totalNM = navRows.reduce((s, r) => s + (parseFloat(r.nm) || 0), 0)
   const totalFuelReq = navRows.reduce((s, r) => s + (parseFloat(r['fuel-req']) || 0), 0)
-  const fuelActValues = navRows.map((r, i) => {
-    if (i === 0) return r['fuel-act'] || ''
-    const prev = parseFloat(fuelActValues ? fuelActValues[i - 1] : '') || 0
-    const req = parseFloat(r['fuel-req']) || 0
-    return prev !== 0 || (fuelActValues && fuelActValues[i - 1] !== '') ? (prev - req).toFixed(2) : ''
-  })
-  // Re-compute fuelActValues properly (map doesn't have access to previous computed values)
   const fuelActCalc = []
   navRows.forEach((r, i) => {
     if (i === 0) {
@@ -127,22 +120,22 @@ export default function PrintSheet() {
                 const val = parseFloat(raw) || 0
                 const w = s.is_fuel ? val * ac.fuel_lb_gal : val
                 return (
-                  <>
-                    <tr key={s.id} className="border-b border-gray-300">
+                  <Fragment key={s.id}>
+                    <tr className="border-b border-gray-300">
                       <td className="px-1.5 py-0.5">{s.label}</td>
                       <td className="px-1.5 py-0.5 text-right font-mono">{w ? (s.is_fuel ? `${val} gal = ${w.toFixed(1)}` : w) : ''}</td>
                       <td className="px-1.5 py-0.5 text-right font-mono">{s.arm}</td>
                       <td className="px-1.5 py-0.5 text-right font-mono">{w ? fmtMoment(w * s.arm, ac) : ''}</td>
                     </tr>
                     {s.is_fuel && state.fuelBurn && (
-                      <tr key={`${s.id}-burn`} className="border-b border-gray-300 bg-amber-50">
+                      <tr className="border-b border-gray-300 bg-amber-50">
                         <td className="px-1.5 py-0.5 pl-4 text-amber-700">↳ Quema estimada</td>
                         <td className="px-1.5 py-0.5 text-right font-mono text-amber-700">−{burnW.toFixed(1)}</td>
                         <td className="px-1.5 py-0.5 text-right font-mono text-amber-700">{fuelStation?.arm || ''}</td>
                         <td className="px-1.5 py-0.5 text-right font-mono text-amber-700">{fmtMoment(-(burnW * (fuelStation?.arm || 0)), ac)}</td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 )
               })}
               <tr className="bg-[#e8f0f8] font-bold border-t-2 border-[#1a3a5c]">
