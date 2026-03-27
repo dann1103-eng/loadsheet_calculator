@@ -21,9 +21,10 @@ const initialState = {
   identification: { dep: '', dest: '', date: '', reg: '', type: '', pic: '', student: '', sign: '', tom: '', lm: '', tog: '', lcg: '' },
 
   opsData: {
-    dep: { ap: '', rwy: '', appr: '', vis: '', ceil: '', remarks: '' },
-    dest: { ap: '', rwy: '', appr: '', vis: '', ceil: '', remarks: '' },
-    alt: { ap: '', rwy: '', appr: '', vis: '', ceil: '', remarks: '' },
+    dep: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
+    dest: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
+    alt: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
+    remarks: '',
   },
 
   submitStatus: 'idle',
@@ -80,6 +81,8 @@ function reducer(state, action) {
       return { ...state, identification: { ...state.identification, [action.field]: action.value } }
     case 'SET_OPS':
       return { ...state, opsData: { ...state.opsData, [action.section]: { ...state.opsData[action.section], [action.field]: action.value } } }
+    case 'SET_OPS_REMARKS':
+      return { ...state, opsData: { ...state.opsData, remarks: action.payload } }
     case 'SET_SUBMIT_STATUS':
       return { ...state, submitStatus: action.payload }
     default:

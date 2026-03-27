@@ -273,15 +273,15 @@ export default function PrintSheet() {
                       <span className="font-semibold">{state.opsData[sec.key][f] || ''}</span>
                     </div>
                   ))}
-                  {state.opsData[sec.key].remarks && (
-                    <div className="mt-0.5 text-[7px] text-gray-600 border-t border-dashed border-gray-200 pt-0.5">
-                      <span className="text-gray-400 uppercase">Ruta: </span>{state.opsData[sec.key].remarks}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
           </div>
+          {state.opsData.remarks && (
+            <div className="text-[8px] text-gray-700 border border-gray-300 rounded px-2 py-1 mt-1">
+              <span className="font-bold text-gray-500 uppercase">Ruta: </span>{state.opsData.remarks}
+            </div>
+          )}
 
           {/* 7. Fuel table */}
           <div>

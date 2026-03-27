@@ -13,7 +13,6 @@ const FIELDS = [
   { id: 'appr', label: 'Tipo de aproximacion' },
   { id: 'vis', label: 'Visibilidad requerida' },
   { id: 'ceil', label: 'Techo requerido' },
-  { id: 'remarks', label: 'Ruta (Remarks)' },
 ]
 
 export default function Step4Ops() {
@@ -39,26 +38,32 @@ export default function Step4Ops() {
                 return (
                   <div key={f.id}>
                     <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">{label}</label>
-                    {f.id === 'remarks' ? (
-                      <textarea
-                        rows={2}
-                        className={`${inputClass} resize-none`}
-                        value={state.opsData[sec.key][f.id] || ''}
-                        onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
-                      />
-                    ) : (
-                      <input
-                        className={inputClass}
-                        value={state.opsData[sec.key][f.id] || ''}
-                        onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
-                      />
-                    )}
+                    <input
+                      className={inputClass}
+                      value={state.opsData[sec.key][f.id] || ''}
+                      onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
+                    />
                   </div>
                 )
               })}
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="border border-gray-300 rounded-lg overflow-hidden mb-4">
+        <div className="bg-[#1a3a5c] text-white px-3 py-2 text-xs font-bold uppercase tracking-wider">
+          Ruta (Remarks)
+        </div>
+        <div className="p-3">
+          <textarea
+            rows={3}
+            className={`${inputClass} resize-none`}
+            placeholder="Ej: Practica PPL maniobra sector 2..."
+            value={state.opsData.remarks || ''}
+            onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value })}
+          />
+        </div>
       </div>
 
       <ActionBar
