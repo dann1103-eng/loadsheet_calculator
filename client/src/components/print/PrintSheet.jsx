@@ -238,7 +238,7 @@ export default function PrintSheet() {
                     <td></td>
                     <td></td>
                     <td className="px-1 py-px text-center font-mono text-[#1a3a5c]">{totalFuelReq || ''}</td>
-                    <td></td>
+                    <td className="px-1 py-px text-center font-mono text-[#1a3a5c]">{fuelActCalc[fuelActCalc.length - 1] || ''}</td>
                   </tr>
                 </tfoot>
               </table>

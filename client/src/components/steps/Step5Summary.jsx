@@ -21,7 +21,9 @@ export default function Step5Summary() {
 
   const buildPdf = async () => {
     if (!showPrint) setShowPrint(true)
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 800))))
+    // Wait for React to render the PrintSheet and canvases to finish drawing
+    await new Promise(resolve => setTimeout(resolve, 200))
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 1500))))
     const el = document.getElementById('print-area')
     if (!el) throw new Error('Activa la vista previa primero.')
     const dataUrl = await toJpeg(el, { quality: 0.93, pixelRatio: 1.5, backgroundColor: '#ffffff' })
