@@ -62,6 +62,11 @@ export default function Step1Aircraft() {
           <input type="text" value={state.flightData.instructor} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'instructor', value: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]" />
         </div>
+        <div>
+          <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Licencia</label>
+          <input type="text" value={state.flightData.license} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'license', value: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]" />
+        </div>
       </div>
 
       <ActionBar onNext={() => dispatch({ type: 'SET_STEP', payload: 1 })} />

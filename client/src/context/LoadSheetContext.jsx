@@ -5,7 +5,7 @@ const initialState = {
   currentAC: 'pa28r180',
   step: 0,
 
-  flightData: { date: new Date().toISOString().split('T')[0], time: '', student: '', instructor: '' },
+  flightData: { date: new Date().toISOString().split('T')[0], time: '', student: '', license: '', instructor: '' },
 
   wbInputs: {},
   wbResults: { totalW: 0, totalM: 0, cg: 0, cgOk: false, overweight: false, allOk: false },

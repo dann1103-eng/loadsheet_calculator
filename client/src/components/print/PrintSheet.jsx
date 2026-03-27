@@ -176,6 +176,7 @@ export default function PrintSheet() {
                 ['DATE', state.identification.date || state.flightData.date], ['REG', ac.reg],
                 ['TYPE', ac.model], ['PIC', state.identification.pic],
                 ['Student', state.identification.student || state.flightData.student],
+                ['Licencia', state.flightData.license],
                 ['SIGN', state.identification.sign],
               ].map(([l, v]) => (
                 <div key={l}><span className="text-gray-500 text-[8px]">{l}: </span><span className="font-semibold">{v}</span></div>
