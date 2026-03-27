@@ -222,7 +222,7 @@ export default function PrintSheet() {
                         <td className="px-1 py-px text-center">{r.gs || ''}</td>
                         <td className="px-1 py-px text-center">{r.nm || ''}</td>
                         <td className="px-1 py-px text-center">{acumVal || ''}</td>
-                        <td className="px-1 py-px text-center">{r.ete || ''}</td>
+                        <td className="px-1 py-px text-center">{r['ete-h'] && r['ete-m'] ? `${r['ete-h']}:${r['ete-m']}` : r['ete-h'] || r['ete-m'] || ''}</td>
                         <td className="px-1 py-px text-center">{r['eta-h'] && r['eta-m'] ? `${r['eta-h']}:${r['eta-m']}` : ''}</td>
                         <td className="px-1 py-px text-center">{r['fuel-req'] || ''}</td>
                         <td className="px-1 py-px text-center">{fuelActCalc[i]}</td>

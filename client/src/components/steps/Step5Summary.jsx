@@ -111,7 +111,9 @@ export default function Step5Summary() {
   const summaryRows = [
     ['Aeronave', `${ac?.reg} — ${ac?.model}`],
     ['Alumno', state.flightData.student],
+    ['Licencia del Alumno', state.flightData.license],
     ['Instructor', state.flightData.instructor],
+    ['Licencia del Instructor', state.flightData.instructorLicense],
     ['Fecha', state.flightData.date],
     ['Peso Bruto', wb.totalW ? `${wb.totalW.toLocaleString()} lb` : '—'],
     ['CG', wb.cg ? `${wb.cg.toFixed(2)} in` : '—'],

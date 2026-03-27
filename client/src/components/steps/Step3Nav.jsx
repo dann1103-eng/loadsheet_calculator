@@ -47,8 +47,8 @@ export default function Step3Nav() {
               <div><label className={labelClass}>DATE</label><input className={inputClass} value={state.identification.date || state.flightData.date} onChange={e => setId('date', e.target.value)} /></div>
               <div><label className={labelClass}>REG</label><input className={readonlyClass} value={ac?.reg || ''} readOnly /></div>
               <div><label className={labelClass}>TYPE</label><input className={readonlyClass} value={ac?.model || ''} readOnly /></div>
-              <div><label className={labelClass}>PIC</label><input className={inputClass} value={state.identification.pic} onChange={e => setId('pic', e.target.value)} /></div>
-              <div><label className={labelClass}>Student</label><input className={inputClass} value={state.identification.student || state.flightData.student} onChange={e => setId('student', e.target.value)} /></div>
+              <div><label className={labelClass}>PIC</label><input className={readonlyClass} value={state.flightData.instructor || ''} readOnly /></div>
+              <div><label className={labelClass}>Student</label><input className={readonlyClass} value={state.flightData.student || ''} readOnly /></div>
               <div><label className={labelClass}>SIGN</label><input className={inputClass} value={state.identification.sign} onChange={e => setId('sign', e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-4 gap-2 mt-2">

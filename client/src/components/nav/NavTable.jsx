@@ -61,7 +61,7 @@ export default function NavTable() {
             ))}
             <th className="px-1 py-1 font-semibold border-l-3 border-l-white" style={{ width: 90, minWidth: 90, borderLeftWidth: '3px' }}>WAYPOINT</th>
             <th colSpan={2} className="px-1 py-1 font-semibold border-r border-blue-400">DISTANCE</th>
-            <th className="px-1 py-1 font-semibold border-r border-blue-400">ETE</th>
+            <th colSpan={3} className="px-1 py-1 font-semibold border-r border-blue-400">ETE</th>
             <th colSpan={3} className="px-1 py-1 font-semibold border-r border-blue-400">ETA</th>
             <th colSpan={3} className="px-1 py-1 font-semibold border-r border-blue-400">ATA</th>
             <th colSpan={2} className="px-1 py-1 font-semibold">FUEL</th>
@@ -71,7 +71,9 @@ export default function NavTable() {
             <th className="border-r border-blue-400" style={{ borderLeftWidth: '3px', borderLeftColor: 'white' }}></th>
             <th className="px-1 border-r border-blue-400">NM</th>
             <th className="px-1 border-r border-blue-400">ACUM</th>
-            <th className="px-1 border-r border-blue-400"></th>
+            <th className="px-1">hh</th>
+            <th className="px-0">:</th>
+            <th className="px-1 border-r border-blue-400">mm</th>
             <th className="px-1">hh</th>
             <th className="px-0">:</th>
             <th className="px-1 border-r border-blue-400">mm</th>
@@ -100,9 +102,13 @@ export default function NavTable() {
               <td className="border-r border-gray-200 p-0 bg-gray-50 text-center font-mono text-[11px]" style={{ width: 38 }}>
                 {acumValues[i] || ''}
               </td>
-              {/* ETE */}
-              <td className="border-r border-gray-200 p-0" style={{ width: 38 }}>
-                <input className={inputClass} value={row.ete || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete', value: e.target.value })} />
+              {/* ETE hh:mm */}
+              <td className="border-r-0 border-gray-200 p-0" style={{ width: 30 }}>
+                <input className={inputClass} maxLength={2} value={row['ete-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-h', value: e.target.value })} />
+              </td>
+              <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
+              <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
+                <input className={inputClass} maxLength={2} value={row['ete-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-m', value: e.target.value })} />
               </td>
               {/* ETA hh:mm */}
               <td className="border-r-0 border-gray-200 p-0" style={{ width: 30 }}>
@@ -140,7 +146,7 @@ export default function NavTable() {
             <td className="px-2 text-[11px] text-[#1a3a5c]" style={{ borderLeftWidth: '3px', borderLeftColor: '#1a3a5c' }}>TOTAL</td>
             <td className="text-center text-[11px] font-mono text-[#1a3a5c]">{totalNM || ''}</td>
             <td className="text-center text-[11px] font-mono text-[#1a3a5c]">{acum || ''}</td>
-            <td></td>
+            <td colSpan={3}></td>
             <td colSpan={6}></td>
             <td className="text-center text-[11px] font-mono text-[#1a3a5c]">
               {parseFloat(rows.reduce((s, r) => s + (parseFloat(r['fuel-req']) || 0), 0).toFixed(2)) || ''}
