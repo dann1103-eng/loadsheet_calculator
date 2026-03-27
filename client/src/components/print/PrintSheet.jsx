@@ -174,7 +174,7 @@ export default function PrintSheet() {
               {[
                 ['DEP', state.identification.dep], ['DEST', state.identification.dest],
                 ['DATE', state.identification.date || state.flightData.date], ['REG', ac.reg],
-                ['TYPE', ac.model], ['PIC', state.identification.pic],
+                ['TYPE', ac.model], ['PIC', state.flightData.instructor],
                 ['Alumno', state.identification.student || state.flightData.student],
                 ['Lic. Alumno', state.flightData.license],
                 ['Instructor', state.flightData.instructor],
