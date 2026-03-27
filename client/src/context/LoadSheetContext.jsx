@@ -12,7 +12,7 @@ const initialState = {
   fuelBurn: '',
 
   navRows: [{}, {}, {}],
-  fuelData: { power: '75', flowGal: '10', flowKg: '27.2', taxiMin: '', tripMin: '', rarMin: '', alt1Min: '', alt2Min: '', reserveMin: '' },
+  fuelData: { power: '75', flowGal: '10', flowKg: '27.2', taxiMin: '', tripMin: '', rarMin: '', alt1Min: '', alt2Min: '', reserveMin: '', minReqMin: '' },
   timesData: { tod: '', ld: '', etd: '', atd: '', eta: '', ata: '', eet: '', total: '' },
   depAtis: '',
   arrAtis: '',
@@ -38,7 +38,7 @@ function getDefaultFuelData(acKey) {
     power: String(ac.default_power || ''),
     flowGal: String(flowGal),
     flowKg: String(flowKg),
-    taxiMin: '', tripMin: '', rarMin: '', alt1Min: '', alt2Min: '', reserveMin: '',
+    taxiMin: '', tripMin: '', rarMin: '', alt1Min: '', alt2Min: '', reserveMin: '', minReqMin: '',
   }
 }
 

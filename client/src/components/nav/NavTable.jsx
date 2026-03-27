@@ -33,7 +33,7 @@ export default function NavTable() {
     acum += nm
     acumValues.push(acum)
   })
-  const totalNM = rows.reduce((s, r) => s + (parseFloat(r.nm) || 0), 0)
+  const totalNM = parseFloat(rows.reduce((s, r) => s + (parseFloat(r.nm) || 0), 0).toFixed(2))
 
   // Calculate FUEL ACT cascade: first row is manual, subsequent rows = prev - fuel-req
   const fuelActValues = []
@@ -143,7 +143,7 @@ export default function NavTable() {
             <td></td>
             <td colSpan={6}></td>
             <td className="text-center text-[11px] font-mono text-[#1a3a5c]">
-              {rows.reduce((s, r) => s + (parseFloat(r['fuel-req']) || 0), 0) || ''}
+              {parseFloat(rows.reduce((s, r) => s + (parseFloat(r['fuel-req']) || 0), 0).toFixed(2)) || ''}
             </td>
             <td></td>
           </tr>

@@ -17,7 +17,7 @@
  * @param {number} params.reserveMin  - Tiempo de FINAL RESERVE en minutos (manual)
  * @param {number} params.tfobGal     - Total Fuel On Board en US gal (desde W&B Step 2)
  */
-export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, rarMin, alt1Min, alt2Min, reserveMin, tfobGal }) {
+export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, rarMin, alt1Min, alt2Min, reserveMin, minReqMin: manualMinReqMin, tfobGal }) {
   const fG = parseFloat(flowGal) || 0
   const fK = parseFloat(flowKg) || 0
   const txMin = parseFloat(taxiMin) || 0
@@ -26,6 +26,7 @@ export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, rarMin, alt1Min, a
   const a1Min = parseFloat(alt1Min) || 0
   const a2Min = parseFloat(alt2Min) || 0
   const rsMin = parseFloat(reserveMin) || 0
+  const mrMin = parseFloat(manualMinReqMin) || 0
   const tfobG = parseFloat(tfobGal) || 0
 
   // Convierte minutos a galones y KG usando los flujos ingresados
@@ -45,10 +46,10 @@ export function calcFuel({ flowGal, flowKg, taxiMin, tripMin, rarMin, alt1Min, a
   const reserveGal = minToGal(rsMin)
   const reserveKg  = minToKg(rsMin)
 
-  // MIN REQUIRED — suma de todos los componentes
-  const minReqGal = taxiGal + tripGal + rarGal + alt1Gal + alt2Gal + reserveGal
-  const minReqKg  = taxiKg  + tripKg  + rarKg  + alt1Kg  + alt2Kg  + reserveKg
-  const minReqMin = txMin + trMin + rrMin + a1Min + a2Min + rsMin
+  // MIN REQUIRED — ingresado manualmente por el alumno (en minutos)
+  const minReqGal = minToGal(mrMin)
+  const minReqKg  = minToKg(mrMin)
+  const minReqMin = mrMin
 
   // TFOB — viene del W&B (gal cargados en Step 2)
   const tfobGal_out = tfobG

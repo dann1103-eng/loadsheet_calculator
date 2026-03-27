@@ -42,7 +42,7 @@ export default function PrintSheet() {
     flowGal: fd.flowGal, flowKg: fd.flowKg,
     taxiMin: fd.taxiMin, tripMin: fd.tripMin,
     rarMin: fd.rarMin, alt1Min: fd.alt1Min, alt2Min: fd.alt2Min,
-    reserveMin: fd.reserveMin, tfobGal,
+    reserveMin: fd.reserveMin, minReqMin: fd.minReqMin, tfobGal,
   })
   const fmtG = (v) => (v != null && v !== 0) ? v.toFixed(2) : ''
   const fmtK = (v) => (v != null && v !== 0) ? v.toFixed(1) : ''
@@ -57,8 +57,8 @@ export default function PrintSheet() {
 
   // Nav table calculations
   const navRows = state.navRows
-  const totalNM = navRows.reduce((s, r) => s + (parseFloat(r.nm) || 0), 0)
-  const totalFuelReq = navRows.reduce((s, r) => s + (parseFloat(r['fuel-req']) || 0), 0)
+  const totalNM = parseFloat(navRows.reduce((s, r) => s + (parseFloat(r.nm) || 0), 0).toFixed(2))
+  const totalFuelReq = parseFloat(navRows.reduce((s, r) => s + (parseFloat(r['fuel-req']) || 0), 0).toFixed(2))
   const fuelActCalc = []
   navRows.forEach((r, i) => {
     if (i === 0) {
