@@ -13,48 +13,63 @@ export default function Step5Summary() {
   const wb = state.wbResults
   const [showPrint, setShowPrint] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
+
+  const student = (state.identification.student || state.flightData.student || 'alumno').replace(/\s+/g, '_')
+  const date = state.flightData.date || 'fecha'
+  const filename = `loadsheet-${student}-${ac?.reg}-${date}.pdf`
+
+  const buildPdf = async () => {
+    if (!showPrint) setShowPrint(true)
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 800))))
+    const el = document.getElementById('print-area')
+    if (!el) throw new Error('Activa la vista previa primero.')
+    const dataUrl = await toJpeg(el, { quality: 0.93, pixelRatio: 1.5, backgroundColor: '#ffffff' })
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' })
+    const margin = 8
+    const pageW = 297; const pageH = 210
+    const maxImgW = pageW - margin * 2; const maxImgH = pageH - margin * 2
+    const ratio = el.offsetHeight / el.offsetWidth
+    let imgW = maxImgW; let imgH = imgW * ratio
+    if (imgH > maxImgH) { imgH = maxImgH; imgW = imgH / ratio }
+    pdf.addImage(dataUrl, 'JPEG', margin + (maxImgW - imgW) / 2, margin + (maxImgH - imgH) / 2, imgW, imgH)
+    return pdf
+  }
 
   const handleDownloadPDF = async () => {
-    if (!showPrint) setShowPrint(true)
     setPdfLoading(true)
-    // Esperar 2 frames + 800ms para que canvases terminen de dibujar
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 800))))
     try {
-      const el = document.getElementById('print-area')
-      if (!el) { setPdfLoading(false); alert('Activa la vista previa primero.'); return }
-
-      const dataUrl = await toJpeg(el, {
-        quality: 0.93,
-        pixelRatio: 1.5,
-        backgroundColor: '#ffffff',
-      })
-
-      // A4 landscape: 297 × 210 mm
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' })
-      const margin = 8
-      const pageW = 297
-      const pageH = 210
-      const maxImgW = pageW - margin * 2
-      const maxImgH = pageH - margin * 2
-
-      const ratio = el.offsetHeight / el.offsetWidth
-      let imgW = maxImgW
-      let imgH = imgW * ratio
-      if (imgH > maxImgH) {
-        imgH = maxImgH
-        imgW = imgH / ratio
-      }
-      const xOffset = margin + (maxImgW - imgW) / 2
-      const yOffset = margin + (maxImgH - imgH) / 2
-
-      pdf.addImage(dataUrl, 'JPEG', xOffset, yOffset, imgW, imgH)
-      const student = (state.identification.student || state.flightData.student || 'alumno').replace(/\s+/g, '_')
-      const date = state.flightData.date || 'fecha'
-      pdf.save(`loadsheet-${student}-${ac.reg}-${date}.pdf`)
+      const pdf = await buildPdf()
+      pdf.save(filename)
     } catch (err) {
       alert('Error PDF: ' + (err?.message || String(err)))
     }
     setPdfLoading(false)
+  }
+
+  const handleSendEmail = async () => {
+    setEmailLoading(true)
+    try {
+      const pdf = await buildPdf()
+      const base64 = pdf.output('datauristring').split(',')[1]
+      const res = await fetch('/api/send-loadsheet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pdfBase64: base64,
+          filename,
+          student: state.flightData.student,
+          date: state.flightData.date,
+          aircraft: ac?.reg,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al enviar')
+      alert('Load sheet enviado al instructor correctamente.')
+    } catch (err) {
+      alert('Error al enviar: ' + (err?.message || String(err)))
+    }
+    setEmailLoading(false)
   }
 
   const handleSubmit = async () => {
@@ -154,11 +169,11 @@ export default function Step5Summary() {
         </button>
 
         <button
-          onClick={handleSubmit}
-          disabled={!wb.allOk || state.submitStatus === 'submitting'}
+          onClick={handleSendEmail}
+          disabled={emailLoading}
           className="px-6 py-2 rounded-md text-sm font-semibold bg-[#15803d] text-white hover:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          {state.submitStatus === 'submitting' ? 'Enviando...' : state.submitStatus === 'submitted' ? 'Enviado ✓' : 'Enviar al Instructor'}
+          {emailLoading ? 'Enviando...' : '✉ Enviar Loadsheet'}
         </button>
       </div>
 
