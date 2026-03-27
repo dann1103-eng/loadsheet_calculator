@@ -71,7 +71,7 @@ export default function PrintSheet() {
   })
 
   return (
-    <div id="print-area" className="print-sheet bg-white text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto px-1">
+    <div id="print-area" translate="no" className="notranslate print-sheet bg-white text-[10px] leading-tight text-gray-800 max-w-[1000px] mx-auto px-1">
       {/* 1. Header */}
       <div className="flex items-center justify-between border-b-2 border-[#1a3a5c] pb-0.5 mb-1">
         <div>
