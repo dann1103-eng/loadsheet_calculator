@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Force light mode globally — prevent dark mode adaptation */
+:root {
+  color-scheme: light only;
+}
+
+#print-area {
+  color-scheme: light only;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body, #root {
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
+  }
+  #print-area, #print-area * {
+    background-color: inherit;
+    color: inherit;
+    border-color: inherit;
+  }
+}
+
 @media print {
   @page {
     size: A4 landscape;
