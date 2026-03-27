@@ -83,8 +83,9 @@ export default function WBTable() {
             const weight = s.is_fuel ? numVal * ac.fuel_lb_gal : numVal
             const moment = weight * s.arm
             const maxVal = s.is_fuel ? s.max_gal : s.max
-            const isOver = maxVal && numVal > maxVal
-            const isWarn = maxVal && !isOver && numVal > maxVal * 0.9
+            const capVal = s.is_fuel ? ac.fuel_cap_gal : null
+            const isOver = capVal ? numVal > capVal : (maxVal && numVal > maxVal)
+            const isWarn = maxVal && !isOver && numVal > maxVal
 
             return (
               <Fragment key={s.id}>

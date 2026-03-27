@@ -18,7 +18,7 @@ export const AIRCRAFT = {
     oil: { label: 'Oil (8qt max, 7lb/gal)', arm: 29.5, weight: 14 },
     stations: [
       { id: 'front', label: 'Front Seat L & R', arm: 85.5, max: 400 },
-      { id: 'fuel', label: 'Fuel (48 gal useable)', arm: 95, max_gal: 48, is_fuel: true },
+      { id: 'fuel', label: 'Fuel (50 gal cap, 48 usable)', arm: 95, max_gal: 48, is_fuel: true },
       { id: 'rear', label: 'Rear Seat L & R', arm: 118.1, max: 300 },
       { id: 'bag', label: 'Baggage (200 lbs max.)', arm: 142.8, max: 200 },
     ],
@@ -54,7 +54,7 @@ export const AIRCRAFT = {
     oil: { label: 'Oil (8qt max, 7lb/gal)', arm: 27.5, weight: 14 },
     stations: [
       { id: 'front', label: 'Front Seat L & R', arm: 80.5, max: 400 },
-      { id: 'fuel', label: 'Fuel (50 gal useable)', arm: 95, max_gal: 48, is_fuel: true },
+      { id: 'fuel', label: 'Fuel (50 gal cap, 48 usable)', arm: 95, max_gal: 48, is_fuel: true },
       { id: 'rear', label: 'Rear Seat L & R', arm: 118.1, max: 300 },
       { id: 'bag', label: 'Baggage (200 lb max)', arm: 142.8, max: 200 },
     ],
@@ -89,7 +89,7 @@ export const AIRCRAFT = {
     oil: { label: 'Oil (8qt max, 7lb/gal)', arm: 27.5, weight: 14 },
     stations: [
       { id: 'front', label: 'Front Seat L & R', arm: 80.5, max: 400 },
-      { id: 'fuel', label: 'Fuel (50 gal useable)', arm: 95, max_gal: 48, is_fuel: true },
+      { id: 'fuel', label: 'Fuel (50 gal cap, 48 usable)', arm: 95, max_gal: 48, is_fuel: true },
       { id: 'rear', label: 'Rear Seat L & R', arm: 118.1, max: 300 },
       { id: 'bag', label: 'Baggage (200 lb max)', arm: 142.8, max: 200 },
     ],
@@ -116,7 +116,7 @@ export const AIRCRAFT = {
     max_landing: 1670,
     max_useful_load: 1670,
     fuel_cap_gal: 26,
-    fuel_usable_gal: 25,
+    fuel_usable_gal: 24.5,
     fuel_lb_gal: 6.0,
     fuel_burn_note: 'Aprox. 6.8 gal/Hr @ 75% Power',
     default_power: 75,
@@ -128,7 +128,7 @@ export const AIRCRAFT = {
       { id: 'copilot', label: 'Co-pilot', arm: 39, max: 300 },
       { id: 'bag1', label: 'Baggage #1 (120 lb MAX)', arm: 64, max: 120 },
       { id: 'bag2', label: 'Baggage #2 (40 lb MAX)', arm: 84, max: 40 },
-      { id: 'fuel', label: 'Fuel (24.5 gal MAX)', arm: 42, max_gal: 24.5, is_fuel: true },
+      { id: 'fuel', label: 'Fuel (26 gal cap, 24.5 usable)', arm: 42, max_gal: 24.5, is_fuel: true },
     ],
     limits_normal: [
       { w: 992,  fwd: 30.0, aft: 36.5 },
