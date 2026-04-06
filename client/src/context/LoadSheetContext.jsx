@@ -85,6 +85,8 @@ function reducer(state, action) {
       return { ...state, opsData: { ...state.opsData, remarks: action.payload } }
     case 'SET_SUBMIT_STATUS':
       return { ...state, submitStatus: action.payload }
+    case 'RESET':
+      return { ...initialState }
     default:
       return state
   }

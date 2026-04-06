@@ -1,37 +1,26 @@
-import { useRef, useEffect, Fragment } from 'react'
+import { useMemo, Fragment } from 'react'
 import { useLoadSheet } from '../../context/LoadSheetContext'
 import { AIRCRAFT } from '../../data/aircraft'
 import { fmtMoment, calcWB } from '../../utils/wbCalc'
 import { calcFuel } from '../../utils/fuelCalc'
-import { drawEnvelope } from '../../utils/drawEnvelope'
+import { renderEnvelopeToDataUrl } from '../../utils/drawEnvelope'
 
 export default function PrintSheet() {
   const { state } = useLoadSheet()
   const ac = AIRCRAFT[state.currentAC]
   const wb = state.wbResults
-  const canvasToRef = useRef(null)
-  const canvasLdgRef = useRef(null)
 
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (canvasToRef.current) {
-          drawEnvelope(canvasToRef.current, {
-            gw: wb.totalW, cg: wb.cg,
-            limitsNormal: ac?.limits_normal, limitsUtility: ac?.limits_utility,
-            showPoint: wb.totalW > (ac?.empty_weight || 0),
-          })
-        }
-        if (canvasLdgRef.current) {
-          drawEnvelope(canvasLdgRef.current, {
-            gw: wb.ldgW || 0, cg: wb.ldgCG || 0,
-            limitsNormal: ac?.limits_normal, limitsUtility: ac?.limits_utility,
-            showPoint: (wb.ldgW || 0) > 0,
-          })
-        }
-      })
-    })
-  }, [wb, ac])
+  const toEnvelopeUrl = useMemo(() => renderEnvelopeToDataUrl({
+    gw: wb.totalW, cg: wb.cg,
+    limitsNormal: ac?.limits_normal, limitsUtility: ac?.limits_utility,
+    showPoint: wb.totalW > (ac?.empty_weight || 0),
+  }), [wb.totalW, wb.cg, wb.ldgW, ac])
+
+  const ldgEnvelopeUrl = useMemo(() => renderEnvelopeToDataUrl({
+    gw: wb.ldgW || 0, cg: wb.ldgCG || 0,
+    limitsNormal: ac?.limits_normal, limitsUtility: ac?.limits_utility,
+    showPoint: (wb.ldgW || 0) > 0,
+  }), [wb.ldgW, wb.ldgCG, ac])
 
   if (!ac) return null
 
@@ -252,11 +241,11 @@ export default function PrintSheet() {
           <div className="grid grid-cols-2 gap-1.5">
             <div className="border border-gray-400 rounded p-1">
               <div className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Envolvente — Despegue</div>
-              <canvas ref={canvasToRef} style={{ width: '100%', height: '80px' }} />
+              <img src={toEnvelopeUrl} alt="Envolvente Despegue" style={{ width: '100%', height: 'auto', display: 'block' }} />
             </div>
             <div className="border border-gray-400 rounded p-1">
               <div className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Envolvente — Aterrizaje</div>
-              <canvas ref={canvasLdgRef} style={{ width: '100%', height: '80px' }} />
+              <img src={ldgEnvelopeUrl} alt="Envolvente Aterrizaje" style={{ width: '100%', height: 'auto', display: 'block' }} />
             </div>
           </div>
 

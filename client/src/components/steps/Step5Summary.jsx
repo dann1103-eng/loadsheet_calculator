@@ -21,9 +21,9 @@ export default function Step5Summary() {
 
   const buildPdf = async () => {
     if (!showPrint) setShowPrint(true)
-    // Wait for React to render the PrintSheet and canvases to finish drawing
-    await new Promise(resolve => setTimeout(resolve, 200))
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 1500))))
+    // Images (data URLs) are synchronous — just wait for React to commit the DOM
+    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
     const el = document.getElementById('print-area')
     if (!el) throw new Error('Activa la vista previa primero.')
     const dataUrl = await toJpeg(el, { quality: 0.93, pixelRatio: 1.5, backgroundColor: '#ffffff' })
@@ -178,6 +178,13 @@ export default function Step5Summary() {
           className="px-6 py-2 rounded-md text-sm font-semibold bg-[#15803d] text-white hover:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {emailLoading ? 'Enviando...' : '✉ Enviar Loadsheet'}
+        </button>
+
+        <button
+          onClick={() => { dispatch({ type: 'RESET' }); dispatch({ type: 'SET_STEP', payload: 0 }) }}
+          className="px-4 py-2 rounded-md text-sm font-semibold border border-gray-400 text-gray-600 hover:bg-gray-100 cursor-pointer"
+        >
+          ↺ Nuevo Loadsheet
         </button>
       </div>
 

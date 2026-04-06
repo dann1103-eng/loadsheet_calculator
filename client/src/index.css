@@ -26,13 +26,17 @@
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
+    margin: 5mm;
+  }
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: hidden !important;
   }
   body {
     visibility: hidden;
     background: white !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
   #print-area {
     visibility: visible;
@@ -41,13 +45,13 @@
     left: 0;
     width: 100%;
     background: white;
+    page-break-after: avoid;
+    break-after: avoid;
+    overflow: hidden;
   }
   #print-area * {
     visibility: visible;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
-  canvas {
-    page-break-inside: avoid;
   }
 }
