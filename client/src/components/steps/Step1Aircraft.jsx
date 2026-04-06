@@ -54,7 +54,7 @@ export default function Step1Aircraft() {
         </div>
         <div>
           <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Nombre del Alumno</label>
-          <input type="text" value={state.flightData.student} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'student', value: e.target.value })}
+          <input type="text" value={state.flightData.student} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'student', value: e.target.value.toUpperCase() })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]" />
         </div>
         <div>
@@ -64,7 +64,7 @@ export default function Step1Aircraft() {
         </div>
         <div>
           <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Nombre del Instructor</label>
-          <input type="text" value={state.flightData.instructor} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'instructor', value: e.target.value })}
+          <input type="text" value={state.flightData.instructor} onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field: 'instructor', value: e.target.value.toUpperCase() })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]" />
         </div>
         <div>

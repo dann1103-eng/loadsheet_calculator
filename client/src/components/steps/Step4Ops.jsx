@@ -41,7 +41,12 @@ export default function Step4Ops() {
                     <input
                       className={inputClass}
                       value={state.opsData[sec.key][f.id] || ''}
-                      onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
+                      inputMode={(f.id === 'rwy' || f.id === 'ceil') ? 'numeric' : undefined}
+                      onChange={e => {
+                        let v = e.target.value.toUpperCase()
+                        if (f.id === 'rwy' || f.id === 'ceil') v = v.replace(/[^0-9]/g, '')
+                        dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: v })
+                      }}
                     />
                   </div>
                 )
@@ -61,7 +66,7 @@ export default function Step4Ops() {
             className={`${inputClass} resize-none`}
             placeholder="Ej: Practica PPL maniobra sector 2..."
             value={state.opsData.remarks || ''}
-            onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value })}
+            onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value.toUpperCase() })}
           />
         </div>
       </div>

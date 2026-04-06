@@ -71,7 +71,7 @@ export default function Step3Nav() {
               ].map(([label, field]) => (
                 <div key={field}>
                   <label className={labelClass}>{label}</label>
-                  <input className={inputClass} value={state.timesData[field]} onChange={e => setTime(field, e.target.value)} />
+                  <input className={inputClass} inputMode="numeric" value={state.timesData[field]} onChange={e => setTime(field, e.target.value.replace(/[^0-9]/g, ''))} />
                 </div>
               ))}
             </div>

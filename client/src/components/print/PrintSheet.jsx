@@ -118,7 +118,7 @@ export default function PrintSheet() {
                     </tr>
                     {s.is_fuel && state.fuelBurn && (
                       <tr className="border-b border-gray-300 bg-amber-50">
-                        <td className="px-1.5 py-px pl-4 text-amber-700">↳ Quema estimada</td>
+                        <td className="px-1.5 py-px pl-4 text-amber-700">↳ Consumo estimado</td>
                         <td className="px-1.5 py-px text-right font-mono text-amber-700">−{burnW.toFixed(1)}</td>
                         <td className="px-1.5 py-px text-right font-mono text-amber-700">{fuelStation?.arm || ''}</td>
                         <td className="px-1.5 py-px text-right font-mono text-amber-700">{fmtMoment(-(burnW * (fuelStation?.arm || 0)), ac)}</td>
