@@ -1,10 +1,10 @@
 import { useLoadSheet } from '../../context/LoadSheetContext'
 
 const PLAN_COLS = [
-  { id: 'altfl', label: 'ALT/FL', w: 52 },
-  { id: 'minalt', label: 'MIN ALT', w: 48 },
+  { id: 'altfl', label: 'ALT/FL', w: 52, numeric: true },
+  { id: 'minalt', label: 'MIN ALT', w: 48, numeric: true },
   { id: 'wv', label: 'W/V', w: 52 },
-  { id: 'tc', label: 'TC', w: 36 },
+  { id: 'tc', label: 'TC', w: 36, numeric: true },
   { id: 'var', label: 'VAR', w: 36 },
   { id: 'mc', label: 'MC', w: 36 },
   { id: 'wca', label: 'WCA', w: 36 },
@@ -14,6 +14,9 @@ const PLAN_COLS = [
   { id: 'tas', label: 'TAS', w: 48 },
   { id: 'gs', label: 'GS', w: 48 },
 ]
+
+const filterNumeric = (v) => v.replace(/[^0-9.\-]/g, '')
+const filterDigits = (v) => v.replace(/[^0-9]/g, '')
 
 const EXEC_COLS = [
   { id: 'waypoint', label: 'WAYPOINT/DEP', w: 90 },
@@ -25,7 +28,6 @@ export default function NavTable() {
   const { state, dispatch } = useLoadSheet()
   const rows = state.navRows
 
-  // Calculate ACUM values
   const acumValues = []
   let acum = 0
   rows.forEach((row) => {
@@ -35,7 +37,6 @@ export default function NavTable() {
   })
   const totalNM = parseFloat(rows.reduce((s, r) => s + (parseFloat(r.nm) || 0), 0).toFixed(2))
 
-  // Calculate FUEL ACT cascade: first row is manual, subsequent rows = prev - fuel-req
   const fuelActValues = []
   rows.forEach((row, i) => {
     if (i === 0) {
@@ -90,58 +91,127 @@ export default function NavTable() {
             <tr key={i} className="border-b border-gray-200 hover:bg-gray-50">
               {PLAN_COLS.map(c => (
                 <td key={c.id} className="border-r border-gray-200 p-0" style={{ width: c.w }}>
-                  <input className={inputClass} value={row[c.id] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: c.id, value: e.target.value })} disabled={isEnviado} />
+                  <input
+                    className={inputClass}
+                    inputMode={c.numeric ? 'numeric' : undefined}
+                    value={row[c.id] || ''}
+                    onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: c.id, value: c.numeric ? filterNumeric(e.target.value) : e.target.value })}
+                    disabled={isEnviado}
+                  />
                 </td>
               ))}
-              {/* Separator + Waypoint */}
               <td className="border-r border-gray-200 p-0" style={{ borderLeftWidth: '3px', borderLeftColor: '#1a3a5c' }}>
-                <input className={`${inputClass} text-left px-2`} value={row.waypoint || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'waypoint', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={`${inputClass} text-left px-2`}
+                  value={row.waypoint || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'waypoint', value: e.target.value })}
+                  disabled={isEnviado}
+                />
               </td>
               <td className="border-r border-gray-200 p-0" style={{ width: 38 }}>
-                <input className={inputClass} value={row.nm || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'nm', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  value={row.nm || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'nm', value: filterNumeric(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               <td className="border-r border-gray-200 p-0 bg-gray-50 text-center font-mono text-[11px]" style={{ width: 38 }}>
                 {acumValues[i] || ''}
               </td>
               {/* ETE hh:mm */}
               <td className="border-r-0 border-gray-200 p-0" style={{ width: 30 }}>
-                <input className={inputClass} maxLength={2} value={row['ete-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-h', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  maxLength={2}
+                  value={row['ete-h'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-h', value: filterDigits(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
               <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
-                <input className={inputClass} maxLength={2} value={row['ete-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-m', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  maxLength={2}
+                  value={row['ete-m'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-m', value: filterDigits(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               {/* ETA hh:mm */}
               <td className="border-r-0 border-gray-200 p-0" style={{ width: 30 }}>
-                <input className={inputClass} maxLength={2} value={row['eta-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-h', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  maxLength={2}
+                  value={row['eta-h'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-h', value: filterDigits(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
               <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
-                <input className={inputClass} maxLength={2} value={row['eta-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-m', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  maxLength={2}
+                  value={row['eta-m'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-m', value: filterDigits(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               {/* ATA hh:mm */}
               <td className="border-r-0 p-0" style={{ width: 30 }}>
-                <input className={inputClass} maxLength={2} value={row['ata-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-h', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  maxLength={2}
+                  value={row['ata-h'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-h', value: filterDigits(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
               <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
-                <input className={inputClass} maxLength={2} value={row['ata-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-m', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  maxLength={2}
+                  value={row['ata-m'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-m', value: filterDigits(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
               {/* Fuel REQ */}
               <td className="border-r border-gray-200 p-0" style={{ width: 48 }}>
-                <input className={inputClass} value={row['fuel-req'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-req', value: e.target.value })} disabled={isEnviado} />
+                <input
+                  className={inputClass}
+                  inputMode="numeric"
+                  value={row['fuel-req'] || ''}
+                  onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-req', value: filterNumeric(e.target.value) })}
+                  disabled={isEnviado}
+                />
               </td>
-              {/* Fuel ACT: first row = input, rest = auto-calculated */}
+              {/* Fuel ACT */}
               <td className="p-0" style={{ width: 48 }}>
                 {i === 0 ? (
-                  <input className={inputClass} value={row['fuel-act'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-act', value: e.target.value })} disabled={isEnviado} />
+                  <input
+                    className={inputClass}
+                    inputMode="numeric"
+                    value={row['fuel-act'] || ''}
+                    onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-act', value: filterNumeric(e.target.value) })}
+                    disabled={isEnviado}
+                  />
                 ) : (
                   <div className={autoClass}>{fuelActValues[i]}</div>
                 )}
               </td>
             </tr>
           ))}
-          {/* Total row */}
           <tr className="bg-[#e8f0f8] font-bold border-t-2 border-[#1a3a5c]">
             {PLAN_COLS.map(c => <td key={c.id} className="border-r border-gray-200"></td>)}
             <td className="px-2 text-[11px] text-[#1a3a5c]" style={{ borderLeftWidth: '3px', borderLeftColor: '#1a3a5c' }}>TOTAL</td>

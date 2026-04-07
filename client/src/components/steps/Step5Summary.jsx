@@ -19,7 +19,6 @@ export default function Step5Summary() {
   const date = state.flightData.date || 'fecha'
   const filename = `loadsheet-${student}-${ac?.reg}-${date}.pdf`
 
-  // Build x-user header — same logic as LoadSheetContext fetch
   function getXUserHeader() {
     try {
       const lsUser = localStorage.getItem('user')
@@ -69,7 +68,6 @@ export default function Step5Summary() {
       const pdf = await buildPdf()
       const base64 = pdf.output('datauristring').split(',')[1]
 
-      // Build waypoints payload (same mapping as handleSubmit)
       const waypoints = state.navRows.map(row => ({
         waypoint: row.waypoint    || null,
         alt_fl:   row.altfl       || null,
@@ -94,7 +92,7 @@ export default function Step5Summary() {
       const fuelGal = parseFloat(state.wbInputs[fuelStation?.id]) || 0
       const tfob = fuelGal * (ac?.fuel_lb_gal || 6.0)
 
-      const res = await fetch(`/api/alumno/vuelos/${id_vuelo}/send-loadsheet`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/send-loadsheet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getXUserHeader() },
         body: JSON.stringify({
@@ -138,9 +136,8 @@ export default function Step5Summary() {
 
     dispatch({ type: 'SET_SUBMIT_STATUS', payload: 'submitting' })
     try {
-      // 1. Guardar Weight & Balance
       const pesos = buildPesosPayload(state.wbInputs, ac.stations)
-      const wbRes = await fetch(`/api/alumno/vuelos/${id_vuelo}/weight-balance`, {
+      const wbRes = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/weight-balance`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...getXUserHeader() },
         body: JSON.stringify({
@@ -155,7 +152,6 @@ export default function Step5Summary() {
         throw new Error(d.message || 'Error al guardar W&B')
       }
 
-      // 2. Guardar Loadsheet (nav + fuel)
       const fuelStation = ac.stations.find(s => s.is_fuel)
       const fuelGal = parseFloat(state.wbInputs[fuelStation?.id]) || 0
       const tfob = fuelGal * (ac.fuel_lb_gal || 6.0)
@@ -180,7 +176,7 @@ export default function Step5Summary() {
         fuel_act: row['fuel-act']   || null,
       }))
 
-      const lsRes = await fetch(`/api/alumno/vuelos/${id_vuelo}/loadsheet`, {
+      const lsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/loadsheet`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...getXUserHeader() },
         body: JSON.stringify({
@@ -281,7 +277,6 @@ export default function Step5Summary() {
           {pdfLoading ? 'Generando PDF...' : 'Descargar PDF'}
         </button>
 
-        {/* Only show send + save when not yet sent */}
         {!state.isEnviado && (
           <>
             <button
@@ -289,7 +284,7 @@ export default function Step5Summary() {
               disabled={emailLoading}
               className="px-6 py-2 rounded-md text-sm font-semibold bg-[#15803d] text-white hover:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {emailLoading ? 'Enviando...' : 'Enviar Loadsheet'}
+              {emailLoading ? 'Enviando...' : '✉ Enviar Loadsheet'}
             </button>
 
             <button
@@ -299,11 +294,17 @@ export default function Step5Summary() {
             >
               {state.submitStatus === 'submitting' ? 'Guardando...' : 'Guardar'}
             </button>
+
+            <button
+              onClick={() => { dispatch({ type: 'RESET' }); dispatch({ type: 'SET_STEP', payload: 0 }) }}
+              className="px-4 py-2 rounded-md text-sm font-semibold border border-gray-400 text-gray-600 hover:bg-gray-100 cursor-pointer"
+            >
+              ↺ Nuevo Loadsheet
+            </button>
           </>
         )}
       </div>
 
-      {/* Inline print preview */}
       {showPrint && (
         <div className="overflow-x-auto bg-gray-200 rounded-lg p-4">
           <div className="min-w-[960px] bg-white shadow-md mx-auto">

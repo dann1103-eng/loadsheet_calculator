@@ -115,7 +115,7 @@ export default function WBTable() {
                 {/* Combustible de quema estimada — right after fuel row */}
                 {s.is_fuel && (
                   <tr className="border-b border-gray-200 bg-amber-50">
-                    <td className="px-2 py-1.5 text-xs font-medium text-amber-700 pl-6">↳ Quema estimada (gal)</td>
+                    <td className="px-2 py-1.5 text-xs font-medium text-amber-700 pl-6">↳ Consumo estimado (gal)</td>
                     <td className="px-2 py-1.5 text-right">
                       <input
                         type="number"

@@ -8,11 +8,9 @@ import ActionBar from '../ActionBar'
 export default function Step1Aircraft() {
   const { state, dispatch } = useLoadSheet()
 
-  // Use server-loaded aircraft if available, otherwise fall back to local data
   const ac = state.aircraftData ?? AIRCRAFT[state.currentAC]
   const [pdfLoading, setPdfLoading] = useState(false)
 
-  // Aircraft selector is only shown when running standalone (no id_vuelo in URL)
   const isStandalone = !state.id_vuelo
   const AC_KEYS = isStandalone ? Object.keys(AIRCRAFT).filter(k => !AIRCRAFT[k].disabled) : []
 
@@ -49,14 +47,31 @@ export default function Step1Aircraft() {
 
       {/* Specs bar */}
       {ac && (
-        <div className="bg-[#e8f0f8] rounded-md p-3 mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div><span className="text-gray-500 block">Modelo</span><span className="font-semibold text-[#1a3a5c]">{ac.model}</span></div>
-          <div><span className="text-gray-500 block">Peso Vacio</span><span className="font-semibold text-[#1a3a5c]">{ac.empty_weight?.toLocaleString()} lb</span></div>
-          <div><span className="text-gray-500 block">Peso Max</span><span className="font-semibold text-[#1a3a5c]">{ac.max_gross?.toLocaleString()} lb</span></div>
+        <div className="bg-[#e8f0f8] rounded-md p-3 mb-6 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+          <div>
+            <span className="text-gray-500 block">Modelo</span>
+            <span className="font-semibold text-[#1a3a5c]">{ac.model}</span>
+          </div>
+          <div>
+            <span className="text-gray-500 block">Peso Vacio</span>
+            <span className="font-semibold text-[#1a3a5c]">{ac.empty_weight?.toLocaleString()} lb</span>
+          </div>
+          <div>
+            <span className="text-gray-500 block">Peso Max</span>
+            <span className="font-semibold text-[#1a3a5c]">{ac.max_gross?.toLocaleString()} lb</span>
+          </div>
           <div>
             <span className="text-gray-500 block">Combustible</span>
             <span className="font-semibold text-[#1a3a5c]">
-              {ac.fuel_usable_gal ?? ac.fuel_cap_gal ?? '?'} gal usable
+              {ac.fuel_capacity_gal
+                ? `${ac.fuel_capacity_gal} gal (${ac.fuel_usable_gal} usable)`
+                : `${ac.fuel_usable_gal ?? ac.fuel_cap_gal ?? '?'} gal usable`}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-500 block">Consumo</span>
+            <span className="font-semibold text-[#1a3a5c]">
+              {ac.fuel_burn_note ?? (ac.fuel_burn_gal_hr ? `${ac.fuel_burn_gal_hr} gal/hr` : '—')}
             </span>
           </div>
         </div>
@@ -78,16 +93,17 @@ export default function Step1Aircraft() {
             {isStandalone ? (
               <input
                 type={type}
-                value={state.flightData[field]}
+                value={state.flightData[field] ?? ''}
                 onChange={e => dispatch({ type: 'SET_FLIGHT_DATA', field, value: e.target.value })}
-                placeholder={type === 'text' && field === 'time' ? 'HH:MM' : undefined}
+                placeholder={field === 'time' ? 'HH:MM' : undefined}
                 pattern={field === 'time' ? '[0-2][0-9]:[0-5][0-9]' : undefined}
                 maxLength={field === 'time' ? 5 : undefined}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]"
               />
             ) : (
               <input
-                value={state.flightData[field]}
+                type={type}
+                value={state.flightData[field] ?? ''}
                 readOnly
                 className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm bg-gray-100 text-gray-500"
               />
@@ -99,7 +115,7 @@ export default function Step1Aircraft() {
       {state.isEnviado ? (
         <div className="flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-gray-300 mt-6">
           <span className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full">
-            Loadsheet enviado al instructor
+            Loadsheet enviado al instructor ✓
           </span>
           <div className="flex gap-2 ml-auto">
             <button
@@ -107,7 +123,6 @@ export default function Step1Aircraft() {
                 setPdfLoading(true)
                 try {
                   dispatch({ type: 'SET_STEP', payload: 4 })
-                  // Small delay so PrintSheet renders before capture
                   await new Promise(r => setTimeout(r, 300))
                   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 1500))))
                   const el = document.getElementById('print-area')

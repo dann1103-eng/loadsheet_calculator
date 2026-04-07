@@ -18,13 +18,11 @@ const FIELDS = [
 export default function Step4Ops() {
   const { state, dispatch } = useLoadSheet()
   const { isEnviado } = state
-
   const inputClass = 'w-full px-2.5 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c] disabled:opacity-60 disabled:cursor-not-allowed'
 
   return (
     <div>
       <h2 className="text-sm font-bold text-[#1a3a5c] uppercase tracking-wider mb-4">Operaciones</h2>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         {SECTIONS.map(sec => (
           <div key={sec.key} className="border border-gray-300 rounded-lg overflow-hidden">
@@ -42,7 +40,12 @@ export default function Step4Ops() {
                     <input
                       className={inputClass}
                       value={state.opsData[sec.key][f.id] || ''}
-                      onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
+                      inputMode={(f.id === 'rwy' || f.id === 'ceil') ? 'numeric' : undefined}
+                      onChange={e => {
+                        let v = e.target.value.toUpperCase()
+                        if (f.id === 'rwy' || f.id === 'ceil') v = v.replace(/[^0-9]/g, '')
+                        dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: v })
+                      }}
                       disabled={isEnviado}
                     />
                   </div>
@@ -63,7 +66,7 @@ export default function Step4Ops() {
             className={`${inputClass} resize-none`}
             placeholder="Ej: Practica PPL maniobra sector 2..."
             value={state.opsData.remarks || ''}
-            onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value })}
+            onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value.toUpperCase() })}
             disabled={isEnviado}
           />
         </div>

@@ -1,13 +1,25 @@
 import { checkCGInEnvelope } from './wbCalc'
 
-export function drawEnvelope(canvas, { gw, cg, limitsNormal, limitsUtility, showPoint }) {
+export function renderEnvelopeToDataUrl(opts, width = 400, height = 220) {
+  const canvas = document.createElement('canvas')
+  const dpr = window.devicePixelRatio || 1
+  canvas.width = width * dpr
+  canvas.height = height * dpr
+  canvas.style.width = width + 'px'
+  canvas.style.height = height + 'px'
+  drawEnvelope(canvas, { ...opts, explicitWidth: width, explicitHeight: height })
+  return canvas.toDataURL('image/png')
+}
+
+export function drawEnvelope(canvas, { gw, cg, limitsNormal, limitsUtility, showPoint, explicitWidth, explicitHeight }) {
   if (!canvas || !limitsNormal || limitsNormal.length < 2) return
   const ctx = canvas.getContext('2d')
   const dpr = window.devicePixelRatio || 1
 
   const rect = canvas.getBoundingClientRect()
-  const W = rect.width
-  const H = 220
+  const W = explicitWidth || rect.width
+  const H = explicitHeight || 220
+  if (!W || W <= 0) return
 
   canvas.width = W * dpr
   canvas.height = H * dpr

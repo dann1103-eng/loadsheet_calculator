@@ -1,12 +1,11 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { AIRCRAFT } from '../data/aircraft'
 
-// ── URL params (id_vuelo only — token comes from localStorage or URL fallback) ─
+// ── URL params ────────────────────────────────────────────────────────────────
 
 function parseUrlParams() {
   const params = new URLSearchParams(window.location.search)
   const id_vuelo = params.get('id_vuelo') || null
-  // Fallback: accept token from URL for cross-origin dev (different port)
   const tokenRaw = params.get('token')
   let xUser = null
   if (tokenRaw) {
@@ -17,7 +16,7 @@ function parseUrlParams() {
 
 const { id_vuelo: URL_ID_VUELO, xUser: URL_X_USER } = parseUrlParams()
 
-// ── plantillaToAC — same logic as CAA-frontend/src/utils/plantillaToAC.js ────
+// ── plantillaToAC ─────────────────────────────────────────────────────────────
 
 function toSlug(str) {
   return str
@@ -91,10 +90,6 @@ function plantillaToAC(plantilla, reg, model) {
 
 export { plantillaToAC }
 
-/**
- * Convierte wbInputs { [id]: string } al objeto pesos { [nombre]: number }
- * que espera PUT /api/alumno/vuelos/:id_vuelo/weight-balance.
- */
 export function buildPesosPayload(wbInputs, stations) {
   const pesos = {}
   for (const station of stations) {
@@ -112,17 +107,12 @@ export function buildPesosPayload(wbInputs, stations) {
 const initialState = {
   id_vuelo:    URL_ID_VUELO,
   xUser:       URL_X_USER,
-
-  // true while fetching from backend (only in integrated mode)
   loading:     !!URL_ID_VUELO,
   loadError:   null,
-
-  aircraftData: null,   // set by INIT_FROM_API
+  aircraftData: null,
   vueloInfo:    null,
-
   currentAC: 'pa28r180',
   step: 0,
-
   flightData: {
     date: new Date().toISOString().split('T')[0],
     time: '',
@@ -131,11 +121,9 @@ const initialState = {
     instructor: '',
     instructorLicense: '',
   },
-
   wbInputs: {},
   wbResults: { totalW: 0, totalM: 0, cg: 0, cgOk: false, overweight: false, allOk: false },
   fuelBurn: '',
-
   navRows: [{}, {}, {}],
   fuelData: {
     power: '75', flowGal: '10', flowKg: '27.2',
@@ -145,22 +133,17 @@ const initialState = {
   depAtis: '',
   arrAtis: '',
   notes: '',
-
   identification: {
     dep: '', dest: '', date: '', reg: '', type: '',
     pic: '', student: '', sign: '', tom: '', lm: '', tog: '', lcg: '',
   },
-
   opsData: {
     dep:  { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
     dest: { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
     alt:  { ap: '', rwy: '', appr: '', vis: '', ceil: '' },
     remarks: '',
   },
-
   submitStatus: 'idle',
-
-  // true when the loadsheet has been sent to the instructor (estado === 'ENVIADO')
   isEnviado: false,
 }
 
@@ -206,7 +189,6 @@ function reducer(state, action) {
         ? ((burnGalHr * ac.fuel_lb_gal) / 2.205).toFixed(1)
         : ''
 
-      // Hydrate wbInputs from savedWB.pesos_ingresados
       const wbInputs = {}
       if (savedWB?.pesos_ingresados && ac?.stations) {
         for (const station of ac.stations) {
@@ -317,6 +299,9 @@ function reducer(state, action) {
     case 'SET_SUBMIT_STATUS':
       return { ...state, submitStatus: action.payload }
 
+    case 'RESET':
+      return { ...initialState }
+
     default:
       return state
   }
@@ -330,18 +315,16 @@ export function LoadSheetProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
-    if (!state.id_vuelo) return  // standalone mode — no fetch needed
+    if (!state.id_vuelo) return
 
-    // Auth: build x-user header (same format as CAA-frontend)
-    // Prefer localStorage (same-origin production), fall back to URL token param
     let xUserJson = null
     try {
       const lsUser = localStorage.getItem('user')
-      if (lsUser) xUserJson = lsUser          // already a JSON string
+      if (lsUser) xUserJson = lsUser
     } catch (_) {}
 
     if (!xUserJson && state.xUser) {
-      xUserJson = JSON.stringify(state.xUser)  // from URL ?token= param
+      xUserJson = JSON.stringify(state.xUser)
     }
 
     if (!xUserJson) {
@@ -365,9 +348,9 @@ export function LoadSheetProvider({ children }) {
           type: 'INIT_FROM_API',
           payload: {
             ac,
-            vueloInfo:       data.vuelo             ?? null,
-            savedWB:         data.wb                ?? null,
-            loadsheetEstado: data.loadsheet_estado  ?? null,
+            vueloInfo:       data.vuelo            ?? null,
+            savedWB:         data.wb               ?? null,
+            loadsheetEstado: data.loadsheet_estado ?? null,
           },
         })
       })
