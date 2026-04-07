@@ -8,7 +8,7 @@ import ActionBar from '../ActionBar'
 
 export default function Step2WB() {
   const { state, dispatch } = useLoadSheet()
-  const ac = AIRCRAFT[state.currentAC]
+  const ac = state.aircraftData ?? AIRCRAFT[state.currentAC]
   const wb = state.wbResults
 
   // Check if all required (non-baggage) stations have values
