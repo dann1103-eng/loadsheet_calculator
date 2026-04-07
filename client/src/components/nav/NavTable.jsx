@@ -48,7 +48,8 @@ export default function NavTable() {
     }
   })
 
-  const inputClass = 'w-full px-1 py-0.5 border-0 bg-transparent text-[11px] text-center font-mono focus:outline-none focus:bg-blue-50'
+  const { isEnviado } = state
+  const inputClass = `w-full px-1 py-0.5 border-0 bg-transparent text-[11px] text-center font-mono focus:outline-none focus:bg-blue-50 ${isEnviado ? 'opacity-60 cursor-not-allowed' : ''}`
   const autoClass = 'w-full px-1 py-0.5 text-[11px] text-center font-mono text-gray-500 bg-gray-50'
 
   return (
@@ -89,51 +90,51 @@ export default function NavTable() {
             <tr key={i} className="border-b border-gray-200 hover:bg-gray-50">
               {PLAN_COLS.map(c => (
                 <td key={c.id} className="border-r border-gray-200 p-0" style={{ width: c.w }}>
-                  <input className={inputClass} value={row[c.id] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: c.id, value: e.target.value })} />
+                  <input className={inputClass} value={row[c.id] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: c.id, value: e.target.value })} disabled={isEnviado} />
                 </td>
               ))}
               {/* Separator + Waypoint */}
               <td className="border-r border-gray-200 p-0" style={{ borderLeftWidth: '3px', borderLeftColor: '#1a3a5c' }}>
-                <input className={`${inputClass} text-left px-2`} value={row.waypoint || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'waypoint', value: e.target.value })} />
+                <input className={`${inputClass} text-left px-2`} value={row.waypoint || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'waypoint', value: e.target.value })} disabled={isEnviado} />
               </td>
               <td className="border-r border-gray-200 p-0" style={{ width: 38 }}>
-                <input className={inputClass} value={row.nm || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'nm', value: e.target.value })} />
+                <input className={inputClass} value={row.nm || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'nm', value: e.target.value })} disabled={isEnviado} />
               </td>
               <td className="border-r border-gray-200 p-0 bg-gray-50 text-center font-mono text-[11px]" style={{ width: 38 }}>
                 {acumValues[i] || ''}
               </td>
               {/* ETE hh:mm */}
               <td className="border-r-0 border-gray-200 p-0" style={{ width: 30 }}>
-                <input className={inputClass} maxLength={2} value={row['ete-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-h', value: e.target.value })} />
+                <input className={inputClass} maxLength={2} value={row['ete-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-h', value: e.target.value })} disabled={isEnviado} />
               </td>
               <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
               <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
-                <input className={inputClass} maxLength={2} value={row['ete-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-m', value: e.target.value })} />
+                <input className={inputClass} maxLength={2} value={row['ete-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ete-m', value: e.target.value })} disabled={isEnviado} />
               </td>
               {/* ETA hh:mm */}
               <td className="border-r-0 border-gray-200 p-0" style={{ width: 30 }}>
-                <input className={inputClass} maxLength={2} value={row['eta-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-h', value: e.target.value })} />
+                <input className={inputClass} maxLength={2} value={row['eta-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-h', value: e.target.value })} disabled={isEnviado} />
               </td>
               <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
               <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
-                <input className={inputClass} maxLength={2} value={row['eta-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-m', value: e.target.value })} />
+                <input className={inputClass} maxLength={2} value={row['eta-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'eta-m', value: e.target.value })} disabled={isEnviado} />
               </td>
               {/* ATA hh:mm */}
               <td className="border-r-0 p-0" style={{ width: 30 }}>
-                <input className={inputClass} maxLength={2} value={row['ata-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-h', value: e.target.value })} />
+                <input className={inputClass} maxLength={2} value={row['ata-h'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-h', value: e.target.value })} disabled={isEnviado} />
               </td>
               <td className="p-0 text-center text-[11px] text-gray-400" style={{ width: 6 }}>:</td>
               <td className="border-r border-gray-200 p-0" style={{ width: 24 }}>
-                <input className={inputClass} maxLength={2} value={row['ata-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-m', value: e.target.value })} />
+                <input className={inputClass} maxLength={2} value={row['ata-m'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'ata-m', value: e.target.value })} disabled={isEnviado} />
               </td>
               {/* Fuel REQ */}
               <td className="border-r border-gray-200 p-0" style={{ width: 48 }}>
-                <input className={inputClass} value={row['fuel-req'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-req', value: e.target.value })} />
+                <input className={inputClass} value={row['fuel-req'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-req', value: e.target.value })} disabled={isEnviado} />
               </td>
               {/* Fuel ACT: first row = input, rest = auto-calculated */}
               <td className="p-0" style={{ width: 48 }}>
                 {i === 0 ? (
-                  <input className={inputClass} value={row['fuel-act'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-act', value: e.target.value })} />
+                  <input className={inputClass} value={row['fuel-act'] || ''} onChange={e => dispatch({ type: 'SET_NAV_ROW', index: i, col: 'fuel-act', value: e.target.value })} disabled={isEnviado} />
                 ) : (
                   <div className={autoClass}>{fuelActValues[i]}</div>
                 )}

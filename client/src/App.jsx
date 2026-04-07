@@ -17,6 +17,25 @@ function AppInner() {
   const steps = [Step1Aircraft, Step2WB, Step3Nav, Step4Ops, Step5Summary]
   const CurrentStep = steps[state.step]
 
+  if (state.loading) {
+    return (
+      <div className="min-h-screen bg-[#e8e8e8] flex items-center justify-center">
+        <p className="text-gray-600 text-sm">Cargando datos de la aeronave...</p>
+      </div>
+    )
+  }
+
+  if (state.loadError) {
+    return (
+      <div className="min-h-screen bg-[#e8e8e8] flex items-center justify-center">
+        <div className="bg-white border border-red-300 rounded-lg p-6 max-w-md text-center">
+          <p className="text-red-600 font-semibold mb-1">No se pudo cargar la aeronave</p>
+          <p className="text-gray-500 text-sm">{state.loadError}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#e8e8e8] p-5">
       <div className="max-w-5xl mx-auto">

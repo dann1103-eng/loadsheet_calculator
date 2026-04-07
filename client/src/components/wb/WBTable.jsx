@@ -5,7 +5,7 @@ import { fmtMoment, calcWB, checkCGInEnvelope } from '../../utils/wbCalc'
 
 export default function WBTable() {
   const { state, dispatch } = useLoadSheet()
-  const ac = AIRCRAFT[state.currentAC]
+  const ac = state.aircraftData ?? AIRCRAFT[state.currentAC]
   if (!ac) return null
 
   const momentHeader = ac.moment_div1000 ? 'Momento (lb·in/1000)' : 'Momento (lb·in)'
@@ -99,7 +99,8 @@ export default function WBTable() {
                       value={rawVal}
                       onChange={e => dispatch({ type: 'SET_WB_INPUT', id: s.id, value: e.target.value })}
                       placeholder={s.is_fuel ? 'gal' : 'lb'}
-                      className={`w-20 px-1.5 py-1 border rounded text-xs text-right font-mono focus:outline-none focus:ring-1 ${
+                      disabled={state.isEnviado}
+                      className={`w-20 px-1.5 py-1 border rounded text-xs text-right font-mono focus:outline-none focus:ring-1 disabled:opacity-60 disabled:cursor-not-allowed ${
                         isOver ? 'border-red-500 bg-red-50 focus:ring-red-500' :
                         isWarn ? 'border-amber-500 bg-amber-50 focus:ring-amber-500' :
                         'border-gray-300 focus:border-[#1a3a5c] focus:ring-[#1a3a5c]'
@@ -123,7 +124,8 @@ export default function WBTable() {
                         value={state.fuelBurn}
                         onChange={e => dispatch({ type: 'SET_FUEL_BURN', payload: e.target.value })}
                         placeholder="gal"
-                        className="w-20 px-1.5 py-1 border border-amber-300 rounded text-xs text-right font-mono focus:outline-none focus:ring-1 focus:border-amber-500 focus:ring-amber-400 bg-white"
+                        disabled={state.isEnviado}
+                        className="w-20 px-1.5 py-1 border border-amber-300 rounded text-xs text-right font-mono focus:outline-none focus:ring-1 focus:border-amber-500 focus:ring-amber-400 bg-white disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                       {state.fuelBurn && <span className="text-[10px] text-amber-600 ml-1">= −{burnW.toFixed(1)} lb</span>}
                     </td>

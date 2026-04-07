@@ -17,8 +17,9 @@ const FIELDS = [
 
 export default function Step4Ops() {
   const { state, dispatch } = useLoadSheet()
+  const { isEnviado } = state
 
-  const inputClass = 'w-full px-2.5 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]'
+  const inputClass = 'w-full px-2.5 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c] disabled:opacity-60 disabled:cursor-not-allowed'
 
   return (
     <div>
@@ -42,6 +43,7 @@ export default function Step4Ops() {
                       className={inputClass}
                       value={state.opsData[sec.key][f.id] || ''}
                       onChange={e => dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: e.target.value })}
+                      disabled={isEnviado}
                     />
                   </div>
                 )
@@ -62,6 +64,7 @@ export default function Step4Ops() {
             placeholder="Ej: Practica PPL maniobra sector 2..."
             value={state.opsData.remarks || ''}
             onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value })}
+            disabled={isEnviado}
           />
         </div>
       </div>

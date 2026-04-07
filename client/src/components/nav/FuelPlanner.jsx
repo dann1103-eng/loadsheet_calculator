@@ -23,11 +23,12 @@ export default function FuelPlanner() {
   }), [fd, tfobGal])
 
   const setField = (field, value) => dispatch({ type: 'SET_FUEL_DATA', field, value })
+  const disabled = state.isEnviado
 
   const thClass = 'text-left px-2 py-1.5 font-semibold text-[10px]'
   const labelClass = 'px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50'
   const valClass = 'px-2 py-1.5 text-xs text-right font-mono text-gray-700 bg-gray-50'
-  const inputClass = 'w-full px-1.5 py-1 border-0 bg-transparent text-xs text-right font-mono focus:outline-none focus:bg-blue-50 min-h-[36px]'
+  const inputClass = `w-full px-1.5 py-1 border-0 bg-transparent text-xs text-right font-mono focus:outline-none focus:bg-blue-50 min-h-[36px] ${state.isEnviado ? 'opacity-60 cursor-not-allowed' : ''}`
   const autoClass = 'px-2 py-1.5 text-xs text-right font-mono text-gray-500 bg-gray-100'
 
   const fmtGal = (v) => (v != null && v !== 0) ? v.toFixed(2) : ''
@@ -59,6 +60,7 @@ export default function FuelPlanner() {
                   value={fd.power}
                   onChange={e => setField('power', e.target.value)}
                   placeholder="—"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -73,6 +75,7 @@ export default function FuelPlanner() {
                   value={fd.flowGal}
                   onChange={e => setField('flowGal', e.target.value)}
                   placeholder="—"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -87,6 +90,7 @@ export default function FuelPlanner() {
                   value={fd.flowKg}
                   onChange={e => setField('flowKg', e.target.value)}
                   placeholder="—"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -120,6 +124,7 @@ export default function FuelPlanner() {
                   value={fd.taxiMin}
                   onChange={e => setField('taxiMin', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -137,6 +142,7 @@ export default function FuelPlanner() {
                   value={fd.tripMin}
                   onChange={e => setField('tripMin', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -154,6 +160,7 @@ export default function FuelPlanner() {
                   value={fd.rarMin}
                   onChange={e => setField('rarMin', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -171,6 +178,7 @@ export default function FuelPlanner() {
                   value={fd.alt1Min}
                   onChange={e => setField('alt1Min', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -188,6 +196,7 @@ export default function FuelPlanner() {
                   value={fd.alt2Min}
                   onChange={e => setField('alt2Min', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -205,6 +214,7 @@ export default function FuelPlanner() {
                   value={fd.reserveMin}
                   onChange={e => setField('reserveMin', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
@@ -222,6 +232,7 @@ export default function FuelPlanner() {
                   value={fd.minReqMin}
                   onChange={e => setField('minReqMin', e.target.value)}
                   placeholder="min"
+                  disabled={disabled}
                 />
               </td>
             </tr>
