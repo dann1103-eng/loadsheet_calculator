@@ -7,7 +7,10 @@ export default function FuelPlanner() {
   const fd = state.fuelData
 
   // TFOB comes from the W&B fuel input (gallons loaded in Step 2)
-  const tfobGal = parseFloat(state.wbInputs['fuel']) || 0
+  const fuelStation = state.aircraftData?.stations?.find(s => s.is_fuel)
+  const tfobGal = fuelStation
+    ? (parseFloat(state.wbInputs[fuelStation.id]) || 0)
+    : (parseFloat(state.wbInputs['fuel']) || 0)
 
   const fuel = useMemo(() => calcFuel({
     flowGal: fd.flowGal,
