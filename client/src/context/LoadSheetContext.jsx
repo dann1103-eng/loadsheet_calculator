@@ -6,15 +6,16 @@ import { AIRCRAFT } from '../data/aircraft'
 function parseUrlParams() {
   const params = new URLSearchParams(window.location.search)
   const id_vuelo = params.get('id_vuelo') || null
+  const jwtToken = params.get('jwt') ? decodeURIComponent(params.get('jwt')) : null
   const tokenRaw = params.get('token')
   let xUser = null
   if (tokenRaw) {
     try { xUser = JSON.parse(decodeURIComponent(tokenRaw)) } catch (_) {}
   }
-  return { id_vuelo, xUser }
+  return { id_vuelo, xUser, jwtToken }
 }
 
-const { id_vuelo: URL_ID_VUELO, xUser: URL_X_USER } = parseUrlParams()
+const { id_vuelo: URL_ID_VUELO, xUser: URL_X_USER, jwtToken: URL_JWT_TOKEN } = parseUrlParams()
 
 // ── plantillaToAC ─────────────────────────────────────────────────────────────
 
@@ -107,6 +108,7 @@ export function buildPesosPayload(wbInputs, stations) {
 const initialState = {
   id_vuelo:    URL_ID_VUELO,
   xUser:       URL_X_USER,
+  jwtToken:    URL_JWT_TOKEN,
   loading:     !!URL_ID_VUELO,
   loadError:   null,
   aircraftData: null,
@@ -169,7 +171,7 @@ function reducer(state, action) {
       return { ...state, isEnviado: true }
 
     case 'INIT_FROM_API': {
-      const { ac, vueloInfo, savedWB, loadsheetEstado } = action.payload
+      const { ac, vueloInfo, savedWB, savedLoadsheet, savedWaypoints, loadsheetEstado } = action.payload
 
       const alumnoNombre = vueloInfo
         ? `${vueloInfo.alumno_nombre ?? ''} ${vueloInfo.alumno_apellido ?? ''}`.trim()
@@ -199,10 +201,52 @@ function reducer(state, action) {
         }
       }
 
+      const ls = savedLoadsheet ?? null
+      const fuelDataFromLS = ls ? {
+        taxiMin:    ls.taxi_fuel      != null ? String(ls.taxi_fuel)      : '',
+        tripMin:    ls.trip_fuel      != null ? String(ls.trip_fuel)      : '',
+        rarMin:     ls.reserve_rr     != null ? String(ls.reserve_rr)     : '',
+        alt1Min:    ls.alt1_fuel      != null ? String(ls.alt1_fuel)      : '',
+        alt2Min:    ls.alt2_fuel      != null ? String(ls.alt2_fuel)      : '',
+        reserveMin: ls.final_reserve  != null ? String(ls.final_reserve)  : '',
+        minReqMin:  ls.min_req        != null ? String(ls.min_req)        : '',
+      } : {}
+
+      const navRowsFromWP = Array.isArray(savedWaypoints) && savedWaypoints.length > 0
+        ? savedWaypoints.map(wp => {
+            const row = {}
+            if (wp.waypoint     != null) row.waypoint      = wp.waypoint
+            if (wp.altitud_fl   != null) row.altfl          = String(wp.altitud_fl)
+            if (wp.wind_vel     != null) row.wv             = String(wp.wind_vel)
+            if (wp.tc           != null) row.tc             = String(wp.tc)
+            if (wp.variacion    != null) row.var            = String(wp.variacion)
+            if (wp.mc           != null) row.mc             = String(wp.mc)
+            if (wp.wca          != null) row.wca            = String(wp.wca)
+            if (wp.mh           != null) row.mh             = String(wp.mh)
+            if (wp.desviacion   != null) row.dev            = String(wp.desviacion)
+            if (wp.ch           != null) row.ch             = String(wp.ch)
+            if (wp.tas          != null) row.tas            = String(wp.tas)
+            if (wp.gs           != null) row.gs             = String(wp.gs)
+            if (wp.distancia_nm != null) row.nm             = String(wp.distancia_nm)
+            if (wp.fuel_req     != null) row['fuel-req']    = String(wp.fuel_req)
+            if (wp.fuel_act     != null) row['fuel-act']    = String(wp.fuel_act)
+            if (wp.eta) {
+              const [h = '', m = ''] = String(wp.eta).split(':')
+              row['eta-h'] = h; row['eta-m'] = m
+            }
+            if (wp.ata) {
+              const [h = '', m = ''] = String(wp.ata).split(':')
+              row['ata-h'] = h; row['ata-m'] = m
+            }
+            return row
+          })
+        : [{}, {}, {}]
+
       return {
         ...initialState,
         id_vuelo:  state.id_vuelo,
         xUser:     state.xUser,
+        jwtToken:  state.jwtToken,
         loading:   false,
         loadError: null,
         aircraftData: ac,
@@ -227,8 +271,10 @@ function reducer(state, action) {
           ...initialState.fuelData,
           flowGal: burnGalHr != null ? String(burnGalHr) : '',
           flowKg:  burnKgHr,
+          ...fuelDataFromLS,
         },
         wbInputs,
+        navRows: navRowsFromWP,
         fuelBurn: savedWB?.fuel_burn != null ? String(savedWB.fuel_burn) : '',
         isEnviado: loadsheetEstado === 'ENVIADO',
       }
@@ -317,17 +363,9 @@ export function LoadSheetProvider({ children }) {
   useEffect(() => {
     if (!state.id_vuelo) return
 
-    let xUserJson = null
-    try {
-      const lsUser = localStorage.getItem('user')
-      if (lsUser) xUserJson = lsUser
-    } catch (_) {}
+    const token = state.jwtToken || localStorage.getItem('token')
 
-    if (!xUserJson && state.xUser) {
-      xUserJson = JSON.stringify(state.xUser)
-    }
-
-    if (!xUserJson) {
+    if (!token) {
       dispatch({ type: 'SET_LOAD_ERROR', payload: 'No hay sesión activa. Ingresá desde el sistema.' })
       return
     }
@@ -335,7 +373,7 @@ export function LoadSheetProvider({ children }) {
     const baseUrl = import.meta.env.VITE_API_URL ?? ''
 
     fetch(`${baseUrl}/api/alumno/vuelos/${state.id_vuelo}/weight-balance`, {
-      headers: { 'x-user': xUserJson },
+      headers: { 'Authorization': `Bearer ${token}` },
     })
       .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d.message || 'Error al cargar datos')))
       .then(data => {
@@ -350,6 +388,8 @@ export function LoadSheetProvider({ children }) {
             ac,
             vueloInfo:       data.vuelo            ?? null,
             savedWB:         data.wb               ?? null,
+            savedLoadsheet:  data.loadsheet        ?? null,
+            savedWaypoints:  data.waypoints        ?? [],
             loadsheetEstado: data.loadsheet_estado ?? null,
           },
         })

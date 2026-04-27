@@ -5,8 +5,12 @@ const aircraftRoutes = require('./routes/aircraft');
 const loadsheetsRoutes = require('./routes/loadsheets');
 const emailRoutes = require('./routes/email');
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+
 const app = express();
-app.use(cors());
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '10mb' }));
 
 app.use('/api/aircraft', aircraftRoutes);

@@ -1,80 +1,112 @@
 import { useLoadSheet } from '../../context/LoadSheetContext'
+import { AIRCRAFT } from '../../data/aircraft'
+import NavTable from '../nav/NavTable'
+import FuelPlanner from '../nav/FuelPlanner'
 import ActionBar from '../ActionBar'
 
-const SECTIONS = [
-  { key: 'dep', title: 'Salida (Departure)' },
-  { key: 'dest', title: 'Destino (Destination)' },
-  { key: 'alt', title: 'Alternado (Alternate)' },
-]
-
-const FIELDS = [
-  { id: 'ap', label: 'Aeropuerto' },
-  { id: 'rwy', label: 'Pista activa' },
-  { id: 'appr', label: 'Tipo de aproximacion' },
-  { id: 'vis', label: 'Visibilidad requerida' },
-  { id: 'ceil', label: 'Techo requerido' },
-]
-
-export default function Step4Ops() {
+export default function Step3Nav() {
   const { state, dispatch } = useLoadSheet()
+  const ac = state.aircraftData ?? AIRCRAFT[state.currentAC]
   const { isEnviado } = state
-  const inputClass = 'w-full px-2.5 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c] disabled:opacity-60 disabled:cursor-not-allowed'
+
+  const setId = (field, value) => dispatch({ type: 'SET_IDENTIFICATION', field, value })
+  const setTime = (field, value) => dispatch({ type: 'SET_TIMES', field, value })
+
+  const inputClass = 'w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-[#1a3a5c] focus:ring-1 focus:ring-[#1a3a5c]'
+  const readonlyClass = 'w-full px-2 py-1.5 border border-gray-200 rounded text-xs bg-gray-100 text-gray-500'
+  const labelClass = 'block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5'
 
   return (
     <div>
-      <h2 className="text-sm font-bold text-[#1a3a5c] uppercase tracking-wider mb-4">Operaciones</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        {SECTIONS.map(sec => (
-          <div key={sec.key} className="border border-gray-300 rounded-lg overflow-hidden">
-            <div className="bg-[#1a3a5c] text-white px-3 py-2 text-xs font-bold uppercase tracking-wider">
-              {sec.title}
-            </div>
-            <div className="p-3 space-y-3">
-              {FIELDS.map(f => {
-                const label = f.id === 'appr' && sec.key === 'dep'
-                  ? f.label + ' (en caso de retorno)'
-                  : f.label
-                return (
-                  <div key={f.id}>
-                    <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">{label}</label>
-                    <input
-                      className={inputClass}
-                      value={state.opsData[sec.key][f.id] || ''}
-                      inputMode={(f.id === 'rwy' || f.id === 'ceil') ? 'numeric' : undefined}
-                      onChange={e => {
-                        let v = e.target.value.toUpperCase()
-                        if (f.id === 'rwy' || f.id === 'ceil') v = v.replace(/[^0-9]/g, '')
-                        dispatch({ type: 'SET_OPS', section: sec.key, field: f.id, value: v })
-                      }}
-                      disabled={isEnviado}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+      <h2 className="text-sm font-bold text-[#1a3a5c] uppercase tracking-wider mb-3">Plan de Navegacion</h2>
+
+      <div className="overflow-x-auto">
+        <NavTable />
       </div>
 
-      <div className="border border-gray-300 rounded-lg overflow-hidden mb-4">
-        <div className="bg-[#1a3a5c] text-white px-3 py-2 text-xs font-bold uppercase tracking-wider">
-          Ruta (Remarks)
+      {!isEnviado && (
+        <button
+          onClick={() => dispatch({ type: 'ADD_NAV_ROW' })}
+          className="mb-6 px-3 py-1.5 text-xs font-semibold text-[#1a3a5c] border border-[#1a3a5c] rounded hover:bg-[#e8f0f8] cursor-pointer"
+        >
+          + Agregar tramo
+        </button>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        {/* Left: Fuel */}
+        <div>
+          <FuelPlanner />
         </div>
-        <div className="p-3">
-          <textarea
-            rows={3}
-            className={`${inputClass} resize-none`}
-            placeholder="Ej: Practica PPL maniobra sector 2..."
-            value={state.opsData.remarks || ''}
-            onChange={e => dispatch({ type: 'SET_OPS_REMARKS', payload: e.target.value.toUpperCase() })}
-            disabled={isEnviado}
-          />
+
+        {/* Right: Identification + Times + ATIS */}
+        <div className="space-y-4">
+
+          {/* Flight Identification */}
+          <div>
+            <h3 className="text-xs font-bold text-[#1a3a5c] uppercase tracking-wider mb-2">Identificacion del Vuelo</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div><label className={labelClass}>DEP</label><input className={inputClass} value={state.identification.dep} onChange={e => setId('dep', e.target.value)} disabled={isEnviado} /></div>
+              <div><label className={labelClass}>DEST</label><input className={inputClass} value={state.identification.dest} onChange={e => setId('dest', e.target.value)} disabled={isEnviado} /></div>
+              <div><label className={labelClass}>DATE</label><input className={readonlyClass} value={state.identification.date || state.flightData.date} readOnly /></div>
+              <div><label className={labelClass}>REG</label><input className={readonlyClass} value={ac?.reg || ''} readOnly /></div>
+              <div><label className={labelClass}>TYPE</label><input className={readonlyClass} value={ac?.model || ''} readOnly /></div>
+              <div><label className={labelClass}>PIC</label><input className={readonlyClass} value={state.flightData.instructor || ''} readOnly /></div>
+              <div><label className={labelClass}>Student</label><input className={readonlyClass} value={state.flightData.student || ''} readOnly /></div>
+              <div><label className={labelClass}>SIGN</label><input className={inputClass} value={state.identification.sign} onChange={e => setId('sign', e.target.value)} disabled={isEnviado} /></div>
+            </div>
+            <div className="grid grid-cols-4 gap-2 mt-2">
+              <div><label className={labelClass}>TOM (lb)</label><input className={inputClass} value={state.identification.tom || Math.round(state.wbResults.totalW) || ''} onChange={e => setId('tom', e.target.value)} disabled={isEnviado} /></div>
+              <div><label className={labelClass}>LM (lb)</label><input className={inputClass} value={state.identification.lm || Math.round(state.wbResults.ldgW || 0) || ''} onChange={e => setId('lm', e.target.value)} disabled={isEnviado} /></div>
+              <div><label className={labelClass}>TCG (in)</label><input className={inputClass} value={state.identification.tog || (state.wbResults.cg ? state.wbResults.cg.toFixed(2) : '')} onChange={e => setId('tog', e.target.value)} disabled={isEnviado} /></div>
+              <div><label className={labelClass}>LCG (in)</label><input className={inputClass} value={state.identification.lcg || (state.wbResults.ldgCG ? state.wbResults.ldgCG.toFixed(2) : '')} onChange={e => setId('lcg', e.target.value)} disabled={isEnviado} /></div>
+            </div>
+          </div>
+
+          {/* Times */}
+          <div>
+            <h3 className="text-xs font-bold text-[#1a3a5c] uppercase tracking-wider mb-2">Tiempos</h3>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                ['TOD (m)', 'tod'], ['LD (m)', 'ld'],
+                ['ETD', 'etd'], ['ATD', 'atd'],
+                ['ETA', 'eta'], ['ATA', 'ata'],
+                ['EET', 'eet'], ['TOTAL', 'total'],
+              ].map(([label, field]) => (
+                <div key={field}>
+                  <label className={labelClass}>{label}</label>
+                  <input className={inputClass} value={state.timesData[field]} onChange={e => setTime(field, e.target.value)} disabled={isEnviado} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ATIS & Notes */}
+          <div>
+            <h3 className="text-xs font-bold text-[#1a3a5c] uppercase tracking-wider mb-2">ATIS & Notas</h3>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div>
+                <label className={labelClass}>DEP ATIS</label>
+                <input className={inputClass} value={state.depAtis} onChange={e => dispatch({ type: 'SET_ATIS', field: 'depAtis', value: e.target.value })} disabled={isEnviado} />
+              </div>
+              <div>
+                <label className={labelClass}>ARR ATIS</label>
+                <input className={inputClass} value={state.arrAtis} onChange={e => dispatch({ type: 'SET_ATIS', field: 'arrAtis', value: e.target.value })} disabled={isEnviado} />
+              </div>
+            </div>
+            <div>
+              <label className={labelClass}>Notas</label>
+              <textarea className={`${inputClass} h-16 resize-none`} value={state.notes} onChange={e => dispatch({ type: 'SET_NOTES', payload: e.target.value })} disabled={isEnviado} />
+            </div>
+          </div>
+
         </div>
       </div>
 
       <ActionBar
-        onBack={() => dispatch({ type: 'SET_STEP', payload: 2 })}
-        onNext={() => dispatch({ type: 'SET_STEP', payload: 4 })}
+        onBack={() => dispatch({ type: 'SET_STEP', payload: 1 })}
+        onNext={() => dispatch({ type: 'SET_STEP', payload: 3 })}
       />
     </div>
   )

@@ -1,4 +1,3 @@
-// Format moment value based on aircraft type
 export function fmtMoment(value, ac) {
   if (ac.moment_div1000) {
     return (value / 1000).toFixed(1)
@@ -9,18 +8,15 @@ export function fmtMoment(value, ac) {
   return Math.round(value).toLocaleString('en-US')
 }
 
-// Calculate W&B totals from inputs
 export function calcWB(ac, inputs) {
   let totalW = ac.empty_weight
   let totalM = ac.empty_weight * ac.empty_arm
 
-  // Oil (only PA-28 variants)
   if (ac.oil) {
     totalW += ac.oil.weight
     totalM += ac.oil.weight * ac.oil.arm
   }
 
-  // Variable stations
   ac.stations.forEach(s => {
     const raw = inputs[s.id]
     if (raw === '' || raw == null) return
@@ -37,7 +33,6 @@ export function calcWB(ac, inputs) {
   return { totalW, totalM, cg }
 }
 
-// Check if point is inside envelope using linear interpolation
 export function checkCGInEnvelope(weight, cg, limits) {
   if (!limits || limits.length < 2) return { inside: true, fwd: 0, aft: 0 }
   const sorted = [...limits].sort((a, b) => a.w - b.w)
@@ -56,7 +51,6 @@ export function checkCGInEnvelope(weight, cg, limits) {
   return { inside: cg >= last.fwd && cg <= last.aft, fwd: last.fwd, aft: last.aft }
 }
 
-// Get forward CG limit at given weight
 export function getForwardLimit(w, limits) {
   const s = [...limits].sort((a, b) => a.w - b.w)
   for (let i = 0; i < s.length - 1; i++) {
@@ -69,7 +63,6 @@ export function getForwardLimit(w, limits) {
   return s[s.length - 1].fwd
 }
 
-// Get aft CG limit at given weight
 export function getAftLimit(w, limits) {
   const s = [...limits].sort((a, b) => a.w - b.w)
   for (let i = 0; i < s.length - 1; i++) {

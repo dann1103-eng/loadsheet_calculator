@@ -19,12 +19,9 @@ export default function Step5Summary() {
   const date = state.flightData.date || 'fecha'
   const filename = `loadsheet-${student}-${ac?.reg}-${date}.pdf`
 
-  function getXUserHeader() {
-    try {
-      const lsUser = localStorage.getItem('user')
-      if (lsUser) return { 'x-user': lsUser }
-    } catch (_) {}
-    if (state.xUser) return { 'x-user': JSON.stringify(state.xUser) }
+  function getAuthHeader() {
+    const token = state.jwtToken || localStorage.getItem('token')
+    if (token) return { 'Authorization': `Bearer ${token}` }
     return {}
   }
 
@@ -94,7 +91,7 @@ export default function Step5Summary() {
 
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/send-loadsheet`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getXUserHeader() },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({
           pdfBase64: base64,
           filename,
@@ -139,7 +136,7 @@ export default function Step5Summary() {
       const pesos = buildPesosPayload(state.wbInputs, ac.stations)
       const wbRes = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/weight-balance`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getXUserHeader() },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({
           pesos,
           tow:           wb.totalW,
@@ -178,7 +175,7 @@ export default function Step5Summary() {
 
       const lsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/loadsheet`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getXUserHeader() },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({
           taxi:          state.fuelData.taxiMin    || null,
           trip:          state.fuelData.tripMin    || null,
