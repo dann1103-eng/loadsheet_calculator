@@ -14,6 +14,7 @@ export default function Step5Summary() {
   const [showPrint, setShowPrint] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
+  const [haGuardado, setHaGuardado] = useState(false)
 
   const student = (state.identification.student || state.flightData.student || 'alumno').replace(/\s+/g, '_')
   const date = state.flightData.date || 'fecha'
@@ -98,26 +99,23 @@ export default function Step5Summary() {
           student: state.flightData.student,
           date: state.flightData.date,
           aircraft: ac?.reg,
-          loadsheet: {
-            taxi:          state.fuelData.taxiMin    || null,
-            trip:          state.fuelData.tripMin    || null,
-            rr_5:          state.fuelData.rarMin     || null,
-            alt1_ifr:      state.fuelData.alt1Min    || null,
-            alt2_ifr:      state.fuelData.alt2Min    || null,
-            final_reserve: state.fuelData.reserveMin || null,
-            min_req:       state.fuelData.minReqMin  || null,
-            extra:         null,
-            tfob:          tfob || null,
-            waypoints,
-          },
+          // Enviamos todo el estado estructurado
+          fuelData:       { ...state.fuelData, tfobGal: tfob, extraMin: tfob - (parseFloat(state.fuelData.minReqMin) || 0) },
+          navRows:        state.navRows,
+          identification: state.identification,
+          opsData:        state.opsData,
+          timesData:      state.timesData,
+          notes:          state.notes,
+          depAtis:        state.depAtis,
+          arrAtis:        state.arrAtis
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || data.message || 'Error al enviar')
-      if (data.estado === 'ENVIADO') {
-        dispatch({ type: 'SET_ENVIADO' })
-      }
-      alert('Load sheet enviado al instructor correctamente.')
+      
+      // Si el backend nos confirma que está COMPLETADO, bloqueamos la UI
+      dispatch({ type: 'SET_ENVIADO' })
+      alert('Plan de vuelo enviado correctamente al instructor.')
     } catch (err) {
       alert('Error al enviar: ' + (err?.message || String(err)))
     }
@@ -133,6 +131,10 @@ export default function Step5Summary() {
 
     dispatch({ type: 'SET_SUBMIT_STATUS', payload: 'submitting' })
     try {
+      const fuelStation = ac?.stations?.find(s => s.is_fuel)
+      const fuelGal = parseFloat(state.wbInputs[fuelStation?.id]) || 0
+      const tfob = fuelGal // En galones
+
       const pesos = buildPesosPayload(state.wbInputs, ac.stations)
       const wbRes = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/weight-balance`, {
         method: 'PUT',
@@ -140,8 +142,11 @@ export default function Step5Summary() {
         body: JSON.stringify({
           pesos,
           tow:           wb.totalW,
+          lw:            wb.totalW - (parseFloat(state.fuelBurn) * (ac?.fuel_lb_gal || 6.0)),
           cg:            wb.cg,
           dentro_limite: wb.allOk ?? false,
+          fuel_burn:     parseFloat(state.fuelBurn) || 0,
+          galones:       fuelGal
         }),
       })
       if (!wbRes.ok) {
@@ -149,44 +154,18 @@ export default function Step5Summary() {
         throw new Error(d.message || 'Error al guardar W&B')
       }
 
-      const fuelStation = ac.stations.find(s => s.is_fuel)
-      const fuelGal = parseFloat(state.wbInputs[fuelStation?.id]) || 0
-      const tfob = fuelGal * (ac.fuel_lb_gal || 6.0)
-
-      const waypoints = state.navRows.map(row => ({
-        waypoint: row.waypoint      || null,
-        alt_fl:   row.altfl         || null,
-        wv:       row.wv            || null,
-        tc:       row.tc            || null,
-        var:      row.var           || null,
-        mc:       row.mc            || null,
-        wca:      row.wca           || null,
-        mh:       row.mh            || null,
-        dev:      row.dev           || null,
-        ch:       row.ch            || null,
-        tas:      row.tas           || null,
-        gs:       row.gs            || null,
-        nm:       row.nm            || null,
-        eta:      row['eta-h'] && row['eta-m'] ? `${row['eta-h']}:${row['eta-m']}` : null,
-        ata:      row['ata-h'] && row['ata-m'] ? `${row['ata-h']}:${row['ata-m']}` : null,
-        fuel_req: row['fuel-req']   || null,
-        fuel_act: row['fuel-act']   || null,
-      }))
-
       const lsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/alumno/vuelos/${id_vuelo}/loadsheet`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({
-          taxi:          state.fuelData.taxiMin    || null,
-          trip:          state.fuelData.tripMin    || null,
-          rr_5:          state.fuelData.rarMin     || null,
-          alt1_ifr:      state.fuelData.alt1Min    || null,
-          alt2_ifr:      state.fuelData.alt2Min    || null,
-          final_reserve: state.fuelData.reserveMin || null,
-          min_req:       state.fuelData.minReqMin  || null,
-          extra:         null,
-          tfob:          tfob || null,
-          waypoints,
+          fuelData:       { ...state.fuelData, tfobGal: tfob, extraMin: tfob - (parseFloat(state.fuelData.minReqMin) || 0) },
+          navRows:        state.navRows,
+          identification: state.identification,
+          opsData:        state.opsData,
+          timesData:      state.timesData,
+          notes:          state.notes,
+          depAtis:        state.depAtis,
+          arrAtis:        state.arrAtis
         }),
       })
       if (!lsRes.ok) {
@@ -194,8 +173,9 @@ export default function Step5Summary() {
         throw new Error(d.message || 'Error al guardar loadsheet')
       }
 
+      setHaGuardado(true)
       dispatch({ type: 'SET_SUBMIT_STATUS', payload: 'submitted' })
-      alert('Load sheet guardado exitosamente.')
+      alert('Cambios guardados correctamente. Ya podés enviar el plan de vuelo.')
     } catch (err) {
       dispatch({ type: 'SET_SUBMIT_STATUS', payload: 'error' })
       alert('Error al guardar: ' + (err?.message || String(err)))
@@ -277,26 +257,26 @@ export default function Step5Summary() {
         {!state.isEnviado && (
           <>
             <button
-              onClick={handleSendEmail}
-              disabled={emailLoading}
-              className="px-6 py-2 rounded-md text-sm font-semibold bg-[#15803d] text-white hover:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {emailLoading ? 'Enviando...' : '✉ Enviar Loadsheet'}
-            </button>
-
-            <button
               onClick={handleSubmit}
               disabled={state.submitStatus === 'submitting'}
               className="px-6 py-2 rounded-md text-sm font-semibold bg-[#1a3a5c] text-white hover:bg-[#122b46] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {state.submitStatus === 'submitting' ? 'Guardando...' : 'Guardar'}
+              {state.submitStatus === 'submitting' ? 'Guardando...' : '1. Guardar'}
+            </button>
+
+            <button
+              onClick={handleSendEmail}
+              disabled={emailLoading || !haGuardado}
+              className="px-6 py-2 rounded-md text-sm font-semibold bg-[#15803d] text-white hover:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {emailLoading ? 'Enviando...' : '2. Enviar al instructor'}
             </button>
 
             <button
               onClick={() => { dispatch({ type: 'RESET' }); dispatch({ type: 'SET_STEP', payload: 0 }) }}
               className="px-4 py-2 rounded-md text-sm font-semibold border border-gray-400 text-gray-600 hover:bg-gray-100 cursor-pointer"
             >
-              ↺ Nuevo Loadsheet
+              ↺ Nuevo
             </button>
           </>
         )}

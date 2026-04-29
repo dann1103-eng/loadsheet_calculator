@@ -7,7 +7,7 @@ import { renderEnvelopeToDataUrl } from '../../utils/drawEnvelope'
 
 export default function PrintSheet() {
   const { state } = useLoadSheet()
-  const ac = AIRCRAFT[state.currentAC]
+  const ac = state.aircraftData || AIRCRAFT[state.currentAC]
   const wb = state.wbResults
 
   const toEnvelopeUrl = useMemo(() => renderEnvelopeToDataUrl({
@@ -26,7 +26,8 @@ export default function PrintSheet() {
 
   const { totalW, totalM, cg } = calcWB(ac, state.wbInputs)
   const fd = state.fuelData
-  const tfobGal = parseFloat(state.wbInputs['fuel']) || 0
+  const fuelStation = ac.stations.find(s => s.is_fuel)
+  const tfobGal = parseFloat(state.wbInputs[fuelStation?.id]) || 0
   const fuel = calcFuel({
     flowGal: fd.flowGal, flowKg: fd.flowKg,
     taxiMin: fd.taxiMin, tripMin: fd.tripMin,
@@ -40,7 +41,6 @@ export default function PrintSheet() {
   const momentHeader = ac.moment_div1000 ? 'Momento (lb·in/1000)' : 'Momento (lb·in)'
 
   // Fuel burn for W&B print table
-  const fuelStation = ac.stations.find(s => s.is_fuel)
   const burnGal = parseFloat(state.fuelBurn) || 0
   const burnW = burnGal * ac.fuel_lb_gal
 
@@ -150,8 +150,8 @@ export default function PrintSheet() {
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[9px]">
               <span className="text-gray-500">Max Takeoff Weight:</span><span className="font-mono">{ac.max_gross.toLocaleString()} lb</span>
               <span className="text-gray-500">Max Landing Weight:</span><span className="font-mono">{ac.max_landing.toLocaleString()} lb</span>
-              {ac.max_useful_load && <><span className="text-gray-500">Max Useful Load:</span><span className="font-mono">{ac.max_useful_load.toLocaleString()} lb</span></>}
-              <span className="text-gray-500">Fuel Capacity:</span><span className="font-mono">{ac.fuel_cap_gal} gal ({ac.fuel_usable_gal} usable)</span>
+              {ac.max_useful_load > 0 && <><span className="text-gray-500">Max Useful Load:</span><span className="font-mono">{ac.max_useful_load.toLocaleString()} lb</span></>}
+              <span className="text-gray-500">Fuel Capacity:</span><span className="font-mono">{ac.fuel_capacity_gal || ''} gal ({ac.fuel_usable_gal || ''} usable)</span>
               <span className="text-gray-500">Fuel Burn:</span><span className="font-mono">{ac.fuel_burn_note}</span>
             </div>
           </div>

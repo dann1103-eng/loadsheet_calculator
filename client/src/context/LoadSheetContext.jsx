@@ -27,7 +27,8 @@ function toSlug(str) {
 }
 
 function plantillaToAC(plantilla, reg, model) {
-  const fuelLbGal = parseFloat(plantilla.fuel_lb_gal) || 6.0
+  const nombrePlantilla = plantilla.nombre || model || reg;
+  const fuelLbGal = parseFloat(plantilla.fuel_lb_gal) || 6.0;
   const allEstaciones = plantilla.estaciones ?? []
 
   const oilEst = allEstaciones.find(s => s.is_oil === true || s.is_fixed === true)
@@ -71,11 +72,14 @@ function plantillaToAC(plantilla, reg, model) {
   return {
     reg,
     model:             model || reg,
+    nombre:            nombrePlantilla,
+    sheet:             nombrePlantilla,
     empty_weight:      parseFloat(plantilla.empty_weight),
     empty_arm:         parseFloat(plantilla.empty_weight_arm),
     empty_moment:      parseFloat(plantilla.empty_weight_moment),
     max_gross:         parseFloat(plantilla.max_takeoff_weight),
-    max_landing:       parseFloat(plantilla.max_landing_weight ?? plantilla.max_takeoff_weight),
+    max_landing:       parseFloat(plantilla.max_landing_weight || plantilla.max_takeoff_weight),
+    max_useful_load:   parseFloat(plantilla.max_useful_load) || (parseFloat(plantilla.max_takeoff_weight) - parseFloat(plantilla.empty_weight)),
     fuel_lb_gal:       fuelLbGal,
     fuel_capacity_gal: fuelCapGal,
     fuel_usable_gal:   fuelUsable,
@@ -202,18 +206,26 @@ function reducer(state, action) {
       }
 
       const ls = savedLoadsheet ?? null
-      const fuelDataFromLS = ls ? {
-        taxiMin:    ls.taxi_fuel      != null ? String(ls.taxi_fuel)      : '',
-        tripMin:    ls.trip_fuel      != null ? String(ls.trip_fuel)      : '',
-        rarMin:     ls.reserve_rr     != null ? String(ls.reserve_rr)     : '',
-        alt1Min:    ls.alt1_fuel      != null ? String(ls.alt1_fuel)      : '',
-        alt2Min:    ls.alt2_fuel      != null ? String(ls.alt2_fuel)      : '',
-        reserveMin: ls.final_reserve  != null ? String(ls.final_reserve)  : '',
-        minReqMin:  ls.min_req        != null ? String(ls.min_req)        : '',
-      } : {}
+      const fuelDataFromLS = {
+        power:      ls?.power_setting || '75',
+        flowGal:    ls?.fuel_flow     != null ? String(ls.fuel_flow)      : (burnGalHr != null ? String(burnGalHr) : '10'),
+        taxiMin:    ls?.taxi_fuel     != null ? String(ls.taxi_fuel)      : '',
+        tripMin:    ls?.trip_fuel     != null ? String(ls.trip_fuel)      : '',
+        rarMin:     ls?.reserve_rr    != null ? String(ls.reserve_rr)     : '',
+        alt1Min:    ls?.alt1_fuel     != null ? String(ls.alt1_fuel)      : '',
+        alt2Min:    ls?.alt2_fuel     != null ? String(ls.alt2_fuel)      : '',
+        reserveMin: ls?.final_reserve != null ? String(ls.final_reserve)  : '',
+        minReqMin:  ls?.min_req       != null ? String(ls.min_req)        : '',
+        tfobGal:    ls?.tfob          != null ? String(ls.tfob)           : '',
+      }
 
       const navRowsFromWP = Array.isArray(savedWaypoints) && savedWaypoints.length > 0
         ? savedWaypoints.map(wp => {
+            // Si existe la columna 'data', la usamos como base para recuperar todo exactamente
+            if (wp.data && typeof wp.data === 'object') {
+              return { ...wp.data }
+            }
+            // Fallback para datos antiguos o columnas planas
             const row = {}
             if (wp.waypoint     != null) row.waypoint      = wp.waypoint
             if (wp.altitud_fl   != null) row.altfl          = String(wp.altitud_fl)
@@ -230,14 +242,6 @@ function reducer(state, action) {
             if (wp.distancia_nm != null) row.nm             = String(wp.distancia_nm)
             if (wp.fuel_req     != null) row['fuel-req']    = String(wp.fuel_req)
             if (wp.fuel_act     != null) row['fuel-act']    = String(wp.fuel_act)
-            if (wp.eta) {
-              const [h = '', m = ''] = String(wp.eta).split(':')
-              row['eta-h'] = h; row['eta-m'] = m
-            }
-            if (wp.ata) {
-              const [h = '', m = ''] = String(wp.ata).split(':')
-              row['ata-h'] = h; row['ata-m'] = m
-            }
             return row
           })
         : [{}, {}, {}]
@@ -257,10 +261,12 @@ function reducer(state, action) {
           student:           alumnoNombre,
           license:           vueloInfo?.licencia_nombre ?? '',
           instructor:        instructorNombre,
-          instructorLicense: '',
+          instructorLicense: vueloInfo?.instructor_licencia ?? '',
         },
         identification: {
           ...initialState.identification,
+          ...(ls?.identification_data || {}),
+          // Forzamos campos de solo lectura si vienen del vuelo
           date:    fechaVuelo,
           reg:     ac?.reg    ?? '',
           type:    ac?.model  ?? '',
@@ -269,10 +275,30 @@ function reducer(state, action) {
         },
         fuelData: {
           ...initialState.fuelData,
-          flowGal: burnGalHr != null ? String(burnGalHr) : '',
-          flowKg:  burnKgHr,
           ...fuelDataFromLS,
+          flowKg: fuelDataFromLS.flowGal && ac?.fuel_lb_gal 
+                  ? (parseFloat(fuelDataFromLS.flowGal) * ac.fuel_lb_gal * 0.453592).toFixed(1)
+                  : burnKgHr,
         },
+        timesData: ls ? {
+          tod: ls.tod_min || '',
+          ld:  ls.ld_min  || '',
+          etd: ls.etd     || '',
+          atd: ls.atd     || '',
+          eta: ls.eta     || '',
+          ata: ls.ata     || '',
+          eet: (ls.eet && typeof ls.eet === 'object') 
+               ? `${String(ls.eet.hours || 0).padStart(2, '0')}:${String(ls.eet.minutes || 0).padStart(2, '0')}`
+               : (ls.eet || ''),
+          total: '',
+        } : initialState.timesData,
+        opsData: {
+          ...initialState.opsData,
+          ...(ls?.ops_data || {})
+        },
+        depAtis: ls?.dep_atis || '',
+        arrAtis: ls?.arr_atis || '',
+        notes:   ls?.notas    || '',
         wbInputs,
         navRows: navRowsFromWP,
         fuelBurn: savedWB?.fuel_burn != null ? String(savedWB.fuel_burn) : '',
@@ -388,9 +414,9 @@ export function LoadSheetProvider({ children }) {
             ac,
             vueloInfo:       data.vuelo            ?? null,
             savedWB:         data.wb               ?? null,
-            savedLoadsheet:  data.loadsheet        ?? null,
-            savedWaypoints:  data.waypoints        ?? [],
-            loadsheetEstado: data.loadsheet_estado ?? null,
+            savedLoadsheet:  data.savedLoadsheet  ?? null,
+            savedWaypoints:  data.savedWaypoints  ?? [],
+            loadsheetEstado: data.loadsheetEstado ?? null,
           },
         })
       })
