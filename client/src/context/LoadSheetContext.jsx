@@ -20,7 +20,7 @@ const { id_vuelo: URL_ID_VUELO, xUser: URL_X_USER, jwtToken: URL_JWT_TOKEN } = p
 // ── plantillaToAC ─────────────────────────────────────────────────────────────
 
 function toSlug(str) {
-  return str
+  return (str || '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '')
@@ -255,7 +255,7 @@ function reducer(state, action) {
           date:              fechaVuelo,
           time:              horaInicio,
           student:           alumnoNombre,
-          license:           '',
+          license:           vueloInfo?.licencia_nombre ?? '',
           instructor:        instructorNombre,
           instructorLicense: '',
         },
